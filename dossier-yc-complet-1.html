@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentrer à Y Combinator — Le dossier intégral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F6EF;
+  --paper-deep:#EFEEE3;
+  --ink:#1C1B16;
+  --ink-soft:#3A3830;
+  --muted:#6E6B5E;
+  --line:#DDDACB;
+  --orange:#FF6600;
+  --orange-deep:#C94D00;
+  --orange-wash:#FFF0E3;
+  --term-bg:#14130E;
+  --term-ink:#EDEBDD;
+  --term-dim:#8B8878;
+  --ok:#1F7A3D;
+  --display:'Archivo',system-ui,sans-serif;
+  --body:'Public Sans',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--paper);
+  background-image:radial-gradient(rgba(28,27,22,.045) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--orange);color:#fff}
+a{color:var(--orange-deep);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--orange)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:2px}
+
+/* ---------- TOPBAR + PROGRESS ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:var(--ink);color:var(--paper);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 20px;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;
+}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;white-space:nowrap}
+.topbar .brand a{color:inherit;text-decoration:none}
+.topbar .ymark{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:23px;height:23px;background:var(--orange);color:#fff;
+  font-family:var(--display);font-weight:900;font-size:15px;flex:none;
+}
+.topbar .count{font-weight:500;text-align:right;color:#CFCBBB}
+.topbar .count strong{background:var(--orange);color:#fff;padding:2px 8px;margin-left:6px;white-space:nowrap;font-weight:600}
+.progress{position:sticky;top:44px;z-index:59;height:4px;background:var(--line)}
+.progress i{display:block;height:100%;width:0;background:var(--orange);transition:width .1s linear}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+
+/* ---------- TICKER ALUMNI ---------- */
+.ticker{overflow:hidden;background:#fff;border-bottom:2px solid var(--ink);user-select:none}
+.ticker .track{display:inline-flex;white-space:nowrap;animation:tick 42s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.ticker .tk{display:inline-flex;align-items:center;gap:26px;padding:8px 13px;
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--ink-soft)}
+.ticker .s{color:var(--orange)}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker .track{animation:none}}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:900px;margin:0 auto;padding:0 22px}
+
+/* ---------- HERO ---------- */
+.hero{padding:70px 0 44px;border-bottom:3px solid var(--ink);position:relative;overflow:hidden}
+.ymega{
+  position:absolute;right:-36px;top:-44px;z-index:0;
+  font-family:var(--display);font-weight:900;font-size:360px;line-height:.9;
+  color:rgba(255,102,0,.09);user-select:none;pointer-events:none;
+}
+@supports ((-webkit-text-stroke:2px black)){
+  .ymega{color:transparent;-webkit-text-stroke:2.5px rgba(255,102,0,.28)}
+}
+@media(max-width:760px){.ymega{font-size:220px;right:-30px;top:-24px}}
+.hero > *{position:relative;z-index:1}
+.eyebrow{
+  font-family:var(--mono);font-size:12.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--orange-deep);
+  display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;
+}
+.eyebrow::before{content:"";width:34px;height:3px;background:var(--orange);flex:none}
+h1{
+  font-family:var(--display);font-weight:900;
+  font-size:clamp(42px,9vw,92px);
+  line-height:.93;letter-spacing:-.022em;
+  text-transform:uppercase;
+}
+h1 .oc{color:var(--orange)}
+.route{
+  display:flex;align-items:center;gap:14px;margin-top:30px;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+}
+.route .rl{flex:1;border-top:2px dotted var(--muted);position:relative;min-width:40px}
+.route .rl::after{
+  content:"";position:absolute;right:-2px;top:-6px;
+  border-left:9px solid var(--orange);border-top:5px solid transparent;border-bottom:5px solid transparent;
+}
+.route .pt{white-space:nowrap}
+.route .pt b{color:var(--orange-deep)}
+.route-sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--muted);margin-top:8px;text-transform:uppercase}
+.dek{
+  margin-top:22px;max-width:680px;
+  font-size:19px;line-height:1.55;color:var(--ink-soft);
+}
+.dek strong{color:var(--ink)}
+.statgrid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:2px solid var(--ink);margin-top:40px;background:#fff;
+}
+.stat{padding:17px 15px;border-right:2px solid var(--ink);transition:background .15s ease}
+.stat:hover{background:var(--orange-wash)}
+.stat:last-child{border-right:none}
+.stat .n{font-family:var(--display);font-weight:900;font-size:clamp(20px,3.4vw,31px);line-height:1;letter-spacing:-.01em}
+.stat .l{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:8px}
+@media(max-width:640px){.statgrid{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat:nth-child(1),.stat:nth-child(2){border-bottom:2px solid var(--ink)}}
+
+/* ---------- TOC ---------- */
+.toc{padding:36px 0 10px;scroll-margin-top:76px}
+.toc h2{font-family:var(--mono);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:16px}
+.tocgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.tocgrid{grid-template-columns:1fr}}
+.tocgrid .grp{
+  grid-column:1/-1;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.18em;color:var(--orange-deep);
+  margin-top:14px;padding-bottom:4px;border-bottom:1px solid var(--line);
+}
+.tocgrid .grp:first-child{margin-top:0}
+.tocgrid a{
+  display:flex;gap:12px;align-items:baseline;
+  border:1px solid var(--line);background:#fff;
+  padding:11px 14px;text-decoration:none;color:var(--ink);
+  font-size:14.5px;font-weight:600;
+  transition:transform .12s ease,border-color .12s ease,background .12s ease;
+}
+.tocgrid a:hover{border-color:var(--orange);background:var(--orange-wash);transform:translateX(3px)}
+.tocgrid a.is-active{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.tocgrid a.is-active .no{color:var(--orange)}
+.tocgrid .no{font-family:var(--mono);font-size:12px;color:var(--orange-deep);font-weight:600;flex:none}
+@media (prefers-reduced-motion:reduce){.tocgrid a{transition:none}.tocgrid a:hover{transform:none}}
+
+/* ---------- CHAPTER BANDS ---------- */
+.chapter{
+  width:100vw;margin:80px 0 0 50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);
+  border-top:3px solid var(--orange);border-bottom:3px solid var(--orange);
+}
+.chapter .cin{max-width:900px;margin:0 auto;padding:36px 22px;display:flex;align-items:center;gap:26px}
+.chapter .rn{
+  font-family:var(--display);font-weight:900;font-size:clamp(52px,9vw,86px);line-height:1;
+  color:transparent;-webkit-text-stroke:2.5px var(--orange);flex:none;
+}
+@supports not ((-webkit-text-stroke:2px black)){.chapter .rn{color:var(--orange)}}
+.chapter .ct{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(21px,3.6vw,32px);letter-spacing:-.01em;line-height:1.05}
+.chapter .cs{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#B7B3A2;margin-top:8px}
+
+/* ---------- SECTIONS ---------- */
+.part{padding:64px 0 8px;scroll-margin-top:76px}
+.part-head{margin-bottom:28px;position:relative}
+.ghost{
+  position:absolute;right:-6px;bottom:-8px;z-index:0;
+  font-family:var(--display);font-weight:900;font-size:clamp(72px,13vw,130px);line-height:1;
+  color:rgba(255,102,0,.10);user-select:none;pointer-events:none;letter-spacing:-.03em;
+}
+@supports ((-webkit-text-stroke:2px black)){
+  .ghost{color:transparent;-webkit-text-stroke:2px rgba(255,102,0,.30)}
+}
+.part-head .pno,.part-head h2{position:relative;z-index:1}
+.part-head .pno{
+  font-family:var(--mono);font-size:12.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--orange-deep);
+  display:block;margin-bottom:10px;
+}
+h2.pt{
+  font-family:var(--display);font-weight:900;text-transform:uppercase;
+  font-size:clamp(27px,4.8vw,42px);line-height:1.02;letter-spacing:-.015em;
+  border-bottom:3px solid var(--ink);padding-bottom:14px;
+}
+h3{font-family:var(--display);font-weight:700;font-size:20px;margin:34px 0 12px;letter-spacing:-.01em}
+p{margin:0 0 16px;max-width:72ch}
+p.lead{font-size:18.5px;color:var(--ink-soft)}
+ul.plain,ol.plain{margin:0 0 18px 22px;max-width:70ch}
+ul.plain li,ol.plain li{margin-bottom:9px}
+.hl{background:linear-gradient(transparent 55%,#FFD9B8 55%)}
+.small{font-size:14px;color:var(--muted)}
+
+/* Reveal on scroll */
+.js .rv{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}}
+
+/* Callouts */
+.callout{
+  border:2px solid var(--ink);background:#fff;
+  padding:20px 22px;margin:24px 0;
+  box-shadow:7px 7px 0 var(--orange);
+  max-width:74ch;
+}
+.callout.flat{box-shadow:none;border-color:var(--line);background:var(--paper-deep)}
+.callout .ttl{font-family:var(--mono);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--orange-deep);margin-bottom:9px}
+.callout p:last-child{margin-bottom:0}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;margin:22px 0;background:#fff;border:2px solid var(--ink);font-size:15px}
+.tbl th{
+  font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+  text-align:left;background:var(--ink);color:var(--paper);padding:10px 12px;font-weight:600;
+}
+.tbl td{padding:11px 12px;border-top:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:nth-child(even) td{background:#FBFAF4}
+.tbl td.mono,.mono{font-family:var(--mono);font-size:13.5px}
+.tbl tr.hot td{background:var(--orange-wash)!important}
+.tbl td.bad{color:#8C2F00}
+.tbl td.good{color:var(--ok)}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.07em;padding:2px 7px;
+  border:1px solid currentColor;
+}
+.tag.ok{color:var(--ok)} .tag.est{color:var(--muted)} .tag.hot{color:var(--orange-deep)}
+.tblwrap{overflow-x:auto}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}
+@media(max-width:680px){.cards{grid-template-columns:1fr}}
+.card{border:2px solid var(--ink);background:#fff;padding:18px 19px;transition:transform .14s ease,box-shadow .14s ease}
+.card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--orange)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none;box-shadow:none}}
+.card .ct{font-family:var(--display);font-weight:700;font-size:17px;margin-bottom:8px}
+.card p{font-size:15px;margin-bottom:8px}
+.card p:last-child{margin-bottom:0}
+.card .k{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--orange-deep);display:block;margin-bottom:8px;font-weight:600}
+
+/* Stories */
+.story{border:2px solid var(--ink);background:#fff;margin:18px 0;padding:20px 22px;max-width:78ch}
+.story .sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.story .co{font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:-.01em}
+.story p{font-size:15px;margin-bottom:10px}
+.story .lesson{background:var(--orange-wash);border-left:3px solid var(--orange);padding:10px 13px;font-size:14px}
+.story .lesson b{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);display:block;margin-bottom:4px}
+
+/* Timeline */
+.tline{border-left:3px solid var(--ink);margin:24px 0 28px 8px;padding-left:24px;max-width:74ch}
+.tl{position:relative;margin-bottom:20px}
+.tl::before{content:"";position:absolute;left:-33px;top:5px;width:13px;height:13px;background:var(--orange);border:2px solid var(--ink)}
+.tl .tw{font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--orange-deep);display:block;margin-bottom:3px}
+.tl .tt{font-weight:700;font-size:16px}
+.tl p{font-size:14.5px;margin:5px 0 0;color:var(--ink-soft)}
+
+/* Q&A blocks */
+.qa{border-left:4px solid var(--orange);background:#fff;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 18px;margin:16px 0;max-width:76ch}
+.qa .q{font-weight:700;font-size:15.5px;margin-bottom:8px}
+.qa .q .en{font-family:var(--mono);font-size:12.5px;color:var(--muted);font-weight:500;display:block;margin-top:3px}
+.qa p{font-size:15px;margin-bottom:8px}
+.qa .ex{
+  font-family:var(--mono);font-size:13px;line-height:1.6;
+  background:var(--paper-deep);border:1px dashed var(--muted);
+  padding:12px 14px;margin-top:10px;color:var(--ink-soft);
+  white-space:pre-wrap;
+}
+.qa .ex::before{content:"EXEMPLE (à adapter, en anglais) —";display:block;font-size:10px;letter-spacing:.1em;color:var(--orange-deep);margin-bottom:7px;font-weight:600}
+
+/* Checklist statique */
+.check{list-style:none;margin:16px 0 22px;max-width:72ch}
+.check li{padding:9px 0 9px 34px;position:relative;border-bottom:1px solid var(--line);font-size:15.5px}
+.check li::before{
+  content:"";position:absolute;left:2px;top:13px;
+  width:15px;height:15px;border:2px solid var(--ink);background:#fff;
+}
+.check li strong{font-weight:700}
+
+/* Checklist interactive */
+.todo{list-style:none;margin:16px 0 10px;max-width:74ch;border:2px solid var(--ink);background:#fff}
+.todo li{border-bottom:1px solid var(--line)}
+.todo li:last-child{border-bottom:none}
+.todo label{display:flex;gap:13px;align-items:flex-start;padding:12px 15px;cursor:pointer;font-size:15px}
+.todo label:hover{background:var(--orange-wash)}
+.todo input{width:17px;height:17px;accent-color:var(--orange);margin-top:3px;flex:none;cursor:pointer}
+.todo input:checked + span{text-decoration:line-through;color:var(--muted)}
+.todo .cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-deep);background:var(--paper-deep);padding:7px 15px;display:block;font-weight:600}
+.savenote{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+
+/* Curriculum modules */
+.module{
+  border:2px solid var(--ink);background:#fff;margin:22px 0;
+  display:grid;grid-template-columns:64px 1fr;
+}
+.module .mn{
+  background:var(--ink);color:var(--orange);
+  font-family:var(--display);font-weight:900;font-size:26px;
+  display:flex;align-items:flex-start;justify-content:center;padding-top:18px;
+}
+.module .mb{padding:18px 20px}
+.module .mt{font-family:var(--display);font-weight:700;font-size:18.5px;letter-spacing:-.01em}
+.module .ms{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--orange-deep);font-weight:600;display:block;margin:2px 0 12px}
+.module h4{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:14px 0 7px;font-weight:600}
+.module ul{margin:0 0 4px 20px}
+.module li{font-size:14.5px;margin-bottom:6px}
+.module .test{
+  margin-top:14px;padding:10px 13px;background:var(--orange-wash);
+  border-left:3px solid var(--orange);font-size:14px;
+}
+.module .test b{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);display:block;margin-bottom:4px}
+@media(max-width:560px){.module{grid-template-columns:1fr}.module .mn{padding:8px 0;font-size:20px}}
+
+/* Terminal */
+.term{
+  background:var(--term-bg);color:var(--term-ink);
+  border:2px solid var(--ink);margin:26px 0;
+  font-family:var(--mono);font-size:14px;line-height:1.7;
+}
+.term .thead{
+  display:flex;align-items:center;gap:8px;
+  background:#000;padding:9px 14px;border-bottom:1px solid #2A2820;
+  font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--term-dim);
+}
+.term .dot{width:9px;height:9px;border-radius:50%;background:#3A3830}
+.term .dot.o{background:var(--orange)}
+.term .tbody{padding:20px 22px;overflow-x:auto}
+.term .ln{display:block;margin-bottom:4px;white-space:pre-wrap}
+.term .cm{color:var(--term-dim)}
+.term .hot{color:var(--orange)}
+.term .okc{color:#7BC98F}
+.term b{color:#fff;font-weight:600}
+.term .cursor::after{content:"▋";color:var(--orange);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.term .cursor::after{animation:none}}
+
+/* Big quote */
+.bigq{
+  font-family:var(--display);font-weight:900;text-transform:uppercase;
+  font-size:clamp(21px,3.6vw,30px);line-height:1.15;letter-spacing:-.01em;
+  border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);
+  padding:26px 4px;margin:34px 0;max-width:76ch;
+}
+.bigq .oc{color:var(--orange)}
+
+/* FAQ */
+.faq details{border:1px solid var(--line);background:#fff;margin-bottom:8px}
+.faq details[open]{border-color:var(--orange)}
+.faq summary{
+  cursor:pointer;padding:14px 16px;font-weight:700;font-size:15.5px;
+  list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);color:var(--orange-deep);font-size:18px;flex:none}
+.faq details[open] summary::after{content:"–"}
+.faq .a{padding:0 16px 16px;font-size:15px;color:var(--ink-soft)}
+.faq .a p{margin-bottom:8px}
+
+/* Back to top */
+.btt{
+  position:fixed;right:18px;bottom:18px;z-index:55;
+  width:46px;height:46px;border:2px solid var(--ink);background:var(--orange);color:#fff;
+  font-family:var(--display);font-weight:900;font-size:19px;cursor:pointer;
+  box-shadow:4px 4px 0 var(--ink);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.btt.show{opacity:1;pointer-events:auto}
+.btt:hover{background:var(--orange-deep)}
+@media (prefers-reduced-motion:reduce){.btt{transition:none}}
+
+/* Footer */
+.foot{border-top:3px solid var(--ink);margin-top:70px;padding:30px 0 60px;font-size:14px;color:var(--muted)}
+.foot p{margin-bottom:10px}
+.foot .mono{font-size:12.5px}
+.top-link{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+
+@media print{
+  .topbar,.progress,.ticker,.btt{display:none}
+  .callout,.card:hover{box-shadow:none}
+  .js .rv{opacity:1;transform:none}
+  .chapter{width:auto;margin:40px 0 0;transform:none}
+}
+</style>
+</head>
+<body>
+<script>document.body.classList.add('js')</script>
+
+<div class="topbar" role="banner">
+  <span class="brand"><span class="ymark">Y</span> <a href="#toc">DOSSIER YC — INTÉGRAL · 15.07.2026</a></span>
+  <span class="count" id="countdown">Deadline Fall 2026 : 27 juil, 20h PT</span>
+</div>
+<div class="progress" aria-hidden="true"><i id="pbar"></i></div>
+<div class="ticker" aria-hidden="true">
+  <div class="track">
+    <span class="tk">AIRBNB <span class="s">✦</span> STRIPE <span class="s">✦</span> DROPBOX <span class="s">✦</span> COINBASE <span class="s">✦</span> DOORDASH <span class="s">✦</span> INSTACART <span class="s">✦</span> REDDIT <span class="s">✦</span> TWITCH <span class="s">✦</span> ZAPIER <span class="s">✦</span> GUSTO <span class="s">✦</span> GITLAB <span class="s">✦</span> BREX <span class="s">✦</span> RAPPI <span class="s">✦</span> AMPLITUDE <span class="s">✦</span> RETOOL <span class="s">✦</span> RAZORPAY <span class="s">✦</span> FLEXPORT <span class="s">✦</span> SEGMENT <span class="s">✦</span></span>
+    <span class="tk">AIRBNB <span class="s">✦</span> STRIPE <span class="s">✦</span> DROPBOX <span class="s">✦</span> COINBASE <span class="s">✦</span> DOORDASH <span class="s">✦</span> INSTACART <span class="s">✦</span> REDDIT <span class="s">✦</span> TWITCH <span class="s">✦</span> ZAPIER <span class="s">✦</span> GUSTO <span class="s">✦</span> GITLAB <span class="s">✦</span> BREX <span class="s">✦</span> RAPPI <span class="s">✦</span> AMPLITUDE <span class="s">✦</span> RETOOL <span class="s">✦</span> RAZORPAY <span class="s">✦</span> FLEXPORT <span class="s">✦</span> SEGMENT <span class="s">✦</span></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <span class="ymega" aria-hidden="true">Y</span>
+  <div class="eyebrow">Préparé pour Mo$ · Objectif : 2–5 Md€ avant 38 ans</div>
+  <h1>Rentrer à<br>Y&nbsp;Combinator<span class="oc">.</span></h1>
+  <div class="route" aria-label="Trajet">
+    <span class="pt"><b>DÉPART</b> — Banlieue parisienne</span>
+    <span class="rl" aria-hidden="true"></span>
+    <span class="pt"><b>ARRIVÉE</b> — San Francisco, CA</span>
+  </div>
+  <div class="route-sub">≈ 9 000 km · 1 dossier · 0 excuse</div>
+  <p class="dek">Le dossier intégral en 5 chapitres et 24 parties : comprendre YC de l'intérieur (histoire, deal, batch, Demo Day, après), candidater (application, vidéo, interview, rejet), ton cas précis (solo, non-tech, 18 ans, français), et <strong>tout ce que tu dois apprendre sur le business</strong> — curriculum, glossaires, checklist finale.</p>
+  <div class="statgrid">
+    <div class="stat"><div class="n">500 K$</div><div class="l">investis, dès l'acceptation</div></div>
+    <div class="stat"><div class="n">~1 %</div><div class="l">taux d'acceptation</div></div>
+    <div class="stat"><div class="n">4×/an</div><div class="l">batchs (W · Sp · Su · F)</div></div>
+    <div class="stat"><div class="n">0 €</div><div class="l">coût de la candidature</div></div>
+  </div>
+</header>
+
+<!-- ================= TOC ================= -->
+<nav class="toc" id="toc" aria-label="Sommaire">
+  <h2>Sommaire — 5 chapitres · 24 parties</h2>
+  <div class="tocgrid">
+    <span class="grp">Chapitre I — Comprendre YC</span>
+    <a href="#s00"><span class="no">00</span> Lis ça d'abord</a>
+    <a href="#s01"><span class="no">01</span> YC, c'est quoi exactement</a>
+    <a href="#s02"><span class="no">02</span> 2005 → 2026 : l'histoire de YC</a>
+    <a href="#s03"><span class="no">03</span> Le deal : 500 K$ décortiqués</a>
+    <a href="#s04"><span class="no">04</span> Calendrier &amp; deadlines</a>
+    <a href="#s05"><span class="no">05</span> Ce que YC cherche vraiment</a>
+    <a href="#s06"><span class="no">06</span> Le processus de A à Z</a>
+    <span class="grp">Chapitre II — Candidater</span>
+    <a href="#s07"><span class="no">07</span> L'application, question par question</a>
+    <a href="#s08"><span class="no">08</span> L'interview de 10 minutes</a>
+    <a href="#s09"><span class="no">09</span> Le rejet &amp; la re-candidature</a>
+    <span class="grp">Chapitre III — Le batch &amp; après</span>
+    <a href="#s10"><span class="no">10</span> La vie pendant le batch, semaine par semaine</a>
+    <a href="#s11"><span class="no">11</span> Demo Day &amp; la levée qui suit</a>
+    <a href="#s12"><span class="no">12</span> Après YC : alumni, Bookface, perks</a>
+    <span class="grp">Chapitre IV — Ton cas précis</span>
+    <a href="#s13"><span class="no">13</span> Solo, non-tech, 18 ans, français</a>
+    <a href="#s14"><span class="no">14</span> Visa, légal &amp; budget : France → SF</a>
+    <a href="#s15"><span class="no">15</span> Fondateurs qui te ressemblent</a>
+    <a href="#s16"><span class="no">16</span> Les alternatives à YC, comparées</a>
+    <a href="#s17"><span class="no">17</span> LE PLAN — ta route vers YC</a>
+    <span class="grp">Chapitre V — Maîtriser le business</span>
+    <a href="#s18"><span class="no">18</span> Le curriculum : 8 modules</a>
+    <a href="#s19"><span class="no">19</span> Glossaire metrics &amp; finance</a>
+    <a href="#s20"><span class="no">20</span> Glossaire fundraising &amp; légal</a>
+    <a href="#s21"><span class="no">21</span> La checklist finale (interactive)</a>
+    <a href="#s22"><span class="no">22</span> Ressources essentielles</a>
+    <a href="#s23"><span class="no">23</span> FAQ complète</a>
+  </div>
+</nav>
+
+<!-- ============================================================ -->
+<div class="chapter" aria-hidden="true"><div class="cin"><span class="rn">I</span><div><div class="ct">Comprendre YC</div><div class="cs">Ce que c'est, d'où ça vient, comment ça marche</div></div></div></div>
+
+<!-- ================= 00 ================= -->
+<section class="part rv" id="s00">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">00</span>
+    <span class="pno">Partie 00</span>
+    <h2 class="pt">Lis ça d'abord</h2>
+  </div>
+  <p class="lead">Une chose doit être claire avant tout le reste : <strong>YC ne finance pas des idées bien présentées. YC finance des preuves.</strong> Des preuves que tu construis vite, que des gens veulent ce que tu fais, et que rien ne t'arrête.</p>
+  <p>Ta candidature, si tu l'envoyais aujourd'hui — solo, non-technique, sans produit lancé, sans revenu — aurait une valeur proche de zéro. Pas parce que t'es de banlieue, pas parce que t'as 18 ans, pas parce que t'as pas de diplôme : YC se fiche complètement de tout ça, et c'est précisément ce qui rend cette porte intéressante pour toi. Elle aurait une valeur proche de zéro parce qu'il n'y aurait <em>rien à évaluer</em>.</p>
+  <p>La bonne nouvelle : chaque client que ton agence signe, chaque semaine de croissance de ton futur SaaS, chaque feature que tu shippes toi-même transforme cette candidature. Dans 6 à 9 mois, avec de l'exécution réelle, tu peux avoir un dossier légitime. Ce document couvre l'intégralité du sujet — de l'histoire de YC jusqu'à la checklist du jour d'envoi — pour que tu n'aies plus jamais besoin de chercher une info ailleurs.</p>
+  <div class="callout">
+    <div class="ttl">Le lien avec ton objectif 2–5 Md€</div>
+    <p>YC n'est <strong>pas obligatoire</strong> pour ton objectif — des boîtes énormes se sont construites sans. Mais pour quelqu'un qui part sans réseau, sans capital et sans diplôme, c'est le raccourci le plus méritocratique qui existe : 500 K$ de capital, le réseau le plus puissant de la tech (plus de 80 000 fondateurs alumni), et une crédibilité instantanée auprès des investisseurs. Le formulaire ne demande ni ton adresse, ni ton école, ni qui tu connais. Il demande ce que tu as construit. C'est un des rares jeux où tu pars à égalité.</p>
+  </div>
+  <p class="small">Toutes les infos vérifiables de ce dossier ont été contrôlées le 15 juillet 2026 sur les sources officielles YC (ycombinator.com/apply, /deal, /faq) et des analyses récentes. Les dates de batchs futurs marquées « estimation » suivent la cadence habituelle de YC mais ne sont pas encore publiées. Les montants et repères chiffrés (levées, coûts de vie, benchmarks) sont des ordres de grandeur usuels, pas des garanties. Vérifie toujours la page officielle avant de planifier.</p>
+</section>
+
+<!-- ================= 01 ================= -->
+<section class="part rv" id="s01">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">01</span>
+    <span class="pno">Partie 01</span>
+    <h2 class="pt">YC, c'est quoi exactement</h2>
+  </div>
+  <p>Y Combinator est un accélérateur de startups fondé en 2005 par Paul Graham, Jessica Livingston, Robert Morris et Trevor Blackwell. Aujourd'hui dirigé par Garry Tan, lui-même ancien fondateur passé par YC. Le principe : YC investit dans des startups très tôt (parfois juste une idée), les fait travailler 3 mois de façon ultra-intensive à San Francisco, puis les présente à des centaines d'investisseurs lors du <strong>Demo Day</strong>.</p>
+  <h3>Les chiffres qui comptent</h3>
+  <ul class="plain">
+    <li><strong>~5 700 boîtes financées</strong> depuis 2005, pour une valorisation combinée dépassant les 600 milliards de dollars.</li>
+    <li>Plus de <strong>100 licornes</strong> (boîtes valorisées 1 Md$+) et plus de 400 boîtes à 100 M$+.</li>
+    <li>Les alumni : <strong>Airbnb, Stripe, Dropbox, Coinbase, DoorDash, Instacart, Reddit, Twitch, Zapier, Gusto, GitLab, Brex</strong>… Les fondateurs d'OpenAI, Airbnb, Stripe et DoorDash reviennent régulièrement parler aux nouveaux batchs.</li>
+    <li>~84 % des boîtes YC sont en <strong>B2B</strong> — exactement ton terrain. La taille médiane d'équipe à l'entrée : 6 personnes ou moins. YC finance des fondateurs, pas des organisations.</li>
+    <li>Selon les analyses du portefeuille, environ <strong>40 % des boîtes YC atteignent la Série A</strong> — plusieurs fois la moyenne du marché. C'est l'effet réseau + Demo Day.</li>
+    <li>Réseau alumni : 80 000+ fondateurs qui s'entraident activement. C'est LA valeur cachée de YC.</li>
+  </ul>
+  <h3>Ce que YC est — et n'est pas</h3>
+  <div class="cards">
+    <div class="card"><span class="k">YC est</span><div class="ct">Un investisseur + un forcing de focus</div><p>Du capital, un partner dédié, un groupe de pairs, une deadline publique (Demo Day) qui force 3 mois d'exécution pure, et un réseau à vie. YC se décrit comme le contraire d'une école : personne ne te note, on t'aide à aller plus vite sur TA boîte.</p></div>
+    <div class="card"><span class="k">YC n'est pas</span><div class="ct">Un cours, un garant, une fin en soi</div><p>YC ne t'apprend pas les bases (tu dois arriver en les maîtrisant — Chapitre V), ne garantit aucun succès (des boîtes YC meurent chaque année), et n'est pas ton objectif : c'est un multiplicateur sur la route de ton objectif.</p></div>
+  </div>
+</section>
+
+<!-- ================= 02 ================= -->
+<section class="part rv" id="s02">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">02</span>
+    <span class="pno">Partie 02 — Nouveau</span>
+    <h2 class="pt">2005 → 2026 : l'histoire de YC</h2>
+  </div>
+  <p class="lead">Comprendre d'où vient YC, c'est comprendre comment ils pensent — et donc comment ils lisent ta candidature. Toute leur culture découle d'une conviction de 2005 : <strong>financer des hackers jeunes et déterminés, tôt, en masse, avec un process standardisé</strong> — à une époque où les VCs exigeaient des business plans de 40 pages.</p>
+  <div class="tline">
+    <div class="tl"><span class="tw">2005 — Cambridge, Massachusetts</span><div class="tt">Le premier batch : 8 boîtes, 20 K$ chacune</div><p>Paul Graham et Jessica Livingston lancent le « Summer Founders Program » : ~20 K$ pour ~6 %, des dîners hebdomadaires, des conseils directs. Dans ce premier batch : Reddit. Le format batch — financer des dizaines de boîtes en même temps — est une invention de YC.</p></div>
+    <div class="tl"><span class="tw">2005–2009 — Les essais de PG</span><div class="tt">La doctrine s'écrit en public</div><p>Paul Graham publie les essais qui deviennent la bible mondiale des startups (« Do Things That Don't Scale », « Startup = Growth »…). YC s'installe définitivement dans la Silicon Valley en 2009. Airbnb (2009) et Stripe rejoignent le portefeuille.</p></div>
+    <div class="tl"><span class="tw">2012–2014 — Les monstres</span><div class="tt">Coinbase, Instacart, DoorDash</div><p>Les batchs de cette période produisent plusieurs décacornes. En 2014, Sam Altman devient président et fait passer YC à l'échelle : batchs plus gros, Startup School, recherche.</p></div>
+    <div class="tl"><span class="tw">2022 — Le deal passe à 500 K$</span><div class="tt">Le game-changer pour les fondateurs sans capital</div><p>Après 20 K$ (2005), 120 K$, 150 K$ puis 125 K$ pour 7 %, YC ajoute 375 K$ en SAFE uncapped MFN. Objectif affiché : permettre à des fondateurs de tout âge, tout milieu et tout pays de se lancer sans pression financière immédiate.</p></div>
+    <div class="tl"><span class="tw">2023 — Garry Tan CEO</span><div class="tt">Retour aux racines, cap sur San Francisco</div><p>Garry Tan (fondateur passé par YC, puis investisseur de la première heure de Coinbase et Instacart) prend la direction. YC recentre tout sur San Francisco et sur l'exigence du présentiel.</p></div>
+    <div class="tl"><span class="tw">2025 — 4 batchs par an</span><div class="tt">Des cohortes plus petites, plus intenses</div><p>Passage de 2 à 4 batchs annuels (Winter, Spring, Summer, Fall) de 140–200 boîtes. Même volume annuel, mais des groupes plus serrés et 4 fenêtres de candidature par an. L'ère IA explose : ~80 % des boîtes construisent de l'IA, le « vibe coding » devient la norme.</p></div>
+    <div class="tl"><span class="tw">2026 — Aujourd'hui</span><div class="tt">Le batch W25 croît de 10 %/semaine en moyenne</div><p>Les batchs récents sont décrits par YC comme les plus rapides et les plus rentables de leur histoire, portés par des équipes minuscules outillées à l'IA. C'est exactement la fenêtre dans laquelle un solo builder outillé peut exister.</p></div>
+  </div>
+  <p class="small">Ce qu'il faut en retenir pour ta candidature : YC a été construit PAR des outsiders POUR des outsiders. Leur biais historique — jeunes, techniques, déterminés, sans pedigree — n'a jamais changé. Tu coches trois cases sur quatre. La quatrième (technique) est le chantier du Module F.</p>
+</section>
+
+<!-- ================= 03 ================= -->
+<section class="part rv" id="s03">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">03</span>
+    <span class="pno">Partie 03</span>
+    <h2 class="pt">Le deal : 500 K$ décortiqués</h2>
+  </div>
+  <p class="lead">Le deal est <strong>identique pour tout le monde et non négociable</strong>. Que tu sois un serial entrepreneur ou un inconnu de 18 ans : mêmes termes. L'argent est investi <strong>dès l'acceptation</strong>, sans attendre le début du batch, et sans condition de milestones.</p>
+  <div class="cards">
+    <div class="card">
+      <span class="k">SAFE nº1 — la partie fixe</span>
+      <div class="ct">125 000 $ contre 7 %</div>
+      <p>Un « post-money SAFE » : YC détiendra exactement <strong>7 % de ta boîte</strong> quand ce SAFE se convertira en actions, quelle que soit ta valorisation future. Simple, prévisible, connu d'avance.</p>
+    </div>
+    <div class="card">
+      <span class="k">SAFE nº2 — la partie flexible</span>
+      <div class="ct">375 000 $ « uncapped MFN »</div>
+      <p>Pas de plafond de valorisation : ce montant se convertira <strong>aux conditions que tu négocieras avec tes futurs investisseurs</strong> (clause « Most Favored Nation » : YC prend les meilleures conditions accordées entre le début du batch et ta prochaine levée). Plus ta boîte vaut cher au moment de lever, moins ces 375 K$ te diluent.</p>
+    </div>
+  </div>
+  <h3>Un SAFE, c'est quoi ?</h3>
+  <p>Un <strong>SAFE</strong> (Simple Agreement for Future Equity) est un contrat inventé par YC : l'investisseur te donne l'argent maintenant, et il recevra des actions plus tard, lors de ta prochaine levée « priced » (avec valorisation fixée). Ce n'est pas de la dette, il n'y a pas d'intérêts, pas de date de remboursement. C'est devenu le standard mondial du financement early-stage. Tous les termes détaillés (cap, discount, pro-rata…) sont dans le glossaire de la Partie 20.</p>
+  <h3>Exemple chiffré</h3>
+  <p>Imagine que 8 mois après YC, tu lèves un seed à 10 M$ de valorisation. Le SAFE nº1 se convertit : YC a ses 7 %. Le SAFE nº2 (375 K$) se convertit aux conditions de ce seed, soit environ 3,75 % de plus. YC détient donc autour de 10–11 % au total, plus la dilution normale du seed. En échange, tu as reçu un demi-million de dollars au moment où personne d'autre ne t'aurait donné un centime.</p>
+  <h3>À quoi ressemble ta dilution sur tout le parcours</h3>
+  <p>Ordres de grandeur typiques pour un fondateur solo qui suit le chemin classique (les vrais chiffres dépendent de tes valorisations) :</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Étape</th><th>Ce qui se passe</th><th>Tu possèdes (~)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Création</strong></td><td>Tu fondes seul, 100 % des parts.</td><td class="mono">100 %</td></tr>
+      <tr class="hot"><td><strong>Acceptation YC</strong></td><td>500 K$ investis : 7 % fixes + le SAFE MFN (converti plus tard).</td><td class="mono">~89–93 % (selon ta valo de seed)</td></tr>
+      <tr><td><strong>Seed (~1,5–3 M$)</strong></td><td>Nouveaux investisseurs (~15–20 %) + création d'un option pool (~10 %) pour tes futurs employés.</td><td class="mono">~60–70 %</td></tr>
+      <tr><td><strong>Série A (~8–15 M$)</strong></td><td>Nouveau tour (~20 %), le pool grossit.</td><td class="mono">~45–55 %</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Retiens le principe : <strong>tu échanges des pourcentages contre de la vitesse</strong>. 50 % d'une boîte à 1 Md$ vaut infiniment plus que 100 % d'une boîte qui n'a jamais eu les moyens de grandir. C'est exactement le calcul de ton objectif 2–5 Md€ : il passe par une part significative d'une boîte énorme, pas par la totalité d'une petite.</p>
+  <div class="callout flat">
+    <div class="ttl">À quoi sert l'argent</div>
+    <p>À ce que tu veux, du moment que ça sert la boîte. YC précise noir sur blanc que le premier usage est de <strong>te payer un salaire</strong> pour bosser à plein temps, et que tu peux financer ton voyage et ton logement à San Francisco avec. Ton budget perso de départ n'est donc pas un obstacle : candidater coûte 0 €, et une fois accepté, les 500 K$ couvrent tout. Restée lean, cette somme finance des années de runway.</p>
+  </div>
+</section>
+
+<!-- ================= 04 ================= -->
+<section class="part rv" id="s04">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">04</span>
+    <span class="pno">Partie 04</span>
+    <h2 class="pt">Calendrier &amp; deadlines</h2>
+  </div>
+  <p class="lead">Depuis 2025, YC accepte des boîtes <strong>4 fois par an</strong> : Winter, Spring, Summer, Fall. Des batchs plus petits (140–200 boîtes) qu'avant, donc 4 fenêtres de tir par an au lieu de 2.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Batch</th><th>Deadline candidature</th><th>Programme (SF)</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr class="hot">
+        <td><strong>Fall 2026</strong></td>
+        <td class="mono">27 juillet 2026, 20 h PT<br>(réponse le 28 août)</td>
+        <td class="mono">Octobre → décembre<br>Demo Day annoncé le 2 déc.</td>
+        <td><span class="tag ok">Officiel — ouvert</span></td>
+      </tr>
+      <tr>
+        <td><strong>Winter 2027</strong></td>
+        <td class="mono">~début/mi-novembre 2026</td>
+        <td class="mono">Janvier → mars 2027</td>
+        <td><span class="tag est">Estimation</span></td>
+      </tr>
+      <tr>
+        <td><strong>Spring 2027</strong></td>
+        <td class="mono">~février 2027</td>
+        <td class="mono">Avril → juin 2027</td>
+        <td><span class="tag est">Estimation</span></td>
+      </tr>
+      <tr>
+        <td><strong>Summer 2027</strong></td>
+        <td class="mono">~mai 2027</td>
+        <td class="mono">Juin/juil. → sept. 2027</td>
+        <td><span class="tag est">Estimation</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Trois règles sur le timing</h3>
+  <ul class="plain">
+    <li><strong>Postule tôt.</strong> Les candidatures sont lues au fil de l'eau : postuler des semaines avant la deadline = plus de créneaux d'interview disponibles, des lecteurs moins saturés.</li>
+    <li><strong>Les candidatures en retard sont quand même lues</strong>, mais sans garantie de délai de réponse, et parfois reportées au batch suivant.</li>
+    <li><strong>Early Decision :</strong> tu peux candidater dès maintenant pour un batch futur (Winter, Spring, Summer) — utile si tu sais que tu seras prêt à une date précise (par exemple un étudiant qui postule pour le batch d'après son diplôme). La deadline « on-time » de Fall 2026 est dans <span class="hl">12 jours</span> au moment où j'écris ce dossier.</li>
+  </ul>
+</section>
+
+<!-- ================= 05 ================= -->
+<section class="part rv" id="s05">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">05</span>
+    <span class="pno">Partie 05</span>
+    <h2 class="pt">Ce que YC cherche vraiment</h2>
+  </div>
+  <p class="lead">Le mantra officiel de YC tient en une phrase : <strong>« Make something people want. »</strong> Fais quelque chose que les gens veulent. Tout le reste — le pitch, le marché, le storytelling — passe après cette question : est-ce que des gens veulent vraiment ton truc, et comment tu le prouves ?</p>
+  <h3>1. Les fondateurs (le critère nº1)</h3>
+  <ul class="plain">
+    <li><strong>La clarté.</strong> Tu expliques ce que tu fais en une phrase simple, sans jargon. Si tu n'y arrives pas, c'est que tu ne le comprends pas toi-même.</li>
+    <li><strong>La vitesse d'exécution.</strong> Qu'est-ce que tu as construit et appris ces 4 dernières semaines ? C'est le meilleur prédicteur de ce que tu feras pendant le batch.</li>
+    <li><strong>La détermination brute.</strong> Paul Graham l'a écrit noir sur blanc : la qualité nº1 qu'ils cherchent, c'est la détermination — pas l'intelligence. Des gens que rien n'arrête, qui trouvent toujours un chemin. Ses 5 qualités : détermination, flexibilité, imagination, un côté « malicieux » (naughtiness — le goût de contourner les règles absurdes), et l'amitié entre cofondateurs.</li>
+    <li><strong>L'honnêteté intellectuelle.</strong> Ils préfèrent un « je ne sais pas encore » franc à une réponse gonflée. Ils détectent le bullshit en quelques secondes — c'est littéralement leur métier.</li>
+  </ul>
+  <h3>2. La preuve que les gens en veulent</h3>
+  <p>Officiellement, <strong>~40 % des boîtes financées chaque batch sont au stade de l'idée</strong> — YC dit explicitement que c'est une erreur d'attendre « d'avoir plus de traction » pour candidater. Mais sois lucide sur ce que ça cache : les boîtes acceptées au stade de l'idée compensent presque toujours par autre chose — des fondateurs qui ont déjà réussi, un background technique d'élite, ou une connaissance du problème hors norme. Toi, tu n'as aucun de ces jokers. <strong>Ta preuve à toi, ce sera la traction</strong> : des clients qui paient, une croissance hebdomadaire, des utilisateurs qui reviennent.</p>
+  <h3>3. Un marché qui peut devenir énorme</h3>
+  <p>YC cherche des boîtes qui peuvent valoir des milliards. Ton marché peut être petit aujourd'hui s'il grandit vite, ou si ta niche est la porte d'entrée d'un marché géant. Tu dois pouvoir articuler ce chemin : « on commence par X, et ça devient énorme parce que Y ». Le raisonnement attendu est bottom-up (nombre de clients cibles × prix), jamais un chiffre de cabinet recopié.</p>
+  <h3>4. Le contexte 2026 : l'IA partout</h3>
+  <p>~80 % des boîtes des derniers batchs construisent de l'IA. Bonne nouvelle pour toi : ton sujet (agents IA de rétention pour l'e-commerce) est en plein dans le radar. Mauvaise nouvelle : la concurrence sur ces sujets est féroce, donc la barre de différenciation (« qu'est-ce que tu comprends que les autres n'ont pas compris ? ») est plus haute que jamais.</p>
+  <div class="callout">
+    <div class="ttl">Ce que YC ne regarde pas</div>
+    <p>Pas de diplôme requis. Pas d'âge minimum publié. Pas besoin de connaître qui que ce soit. Pas besoin d'être américain. Pas besoin d'avoir déjà une société immatriculée. Pas besoin d'avoir levé. Et si YC a déjà financé une boîte similaire à la tienne, ça ne joue pas contre toi — c'est dans leur FAQ officielle.</p>
+  </div>
+</section>
+
+<!-- ================= 06 ================= -->
+<section class="part rv" id="s06">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">06</span>
+    <span class="pno">Partie 06</span>
+    <h2 class="pt">Le processus de A à Z</h2>
+  </div>
+  <p class="lead">Le funnel est brutal mais simple. Entre 20 000 et 40 000+ candidatures par cycle, 140 à 200 boîtes acceptées. Taux global : <strong>0,6 à 2 % selon les batchs</strong>. Mais ce chiffre cache l'essentiel : presque toute la sélection se joue sur le dossier écrit.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Étape</th><th>Ce qui se passe</th><th>Tes chances</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. Application écrite</strong></td><td>Formulaire en ligne + vidéo d'1 minute. Chaque dossier est lu par des partners.</td><td class="mono">C'est ici que ~90 % des candidatures meurent</td></tr>
+      <tr><td><strong>2. Interview</strong></td><td>~10 minutes en visio avec 2–3 partners. Questions rapides, sans slides.</td><td class="mono">~20–30 % des interviewés sont acceptés</td></tr>
+      <tr><td><strong>3. Décision</strong></td><td>Le jour même. Un appel = oui. Un email = non — avec un feedback détaillé pour tous les interviewés.</td><td class="mono">Investissement lancé immédiatement</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Comment ta candidature est lue</h3>
+  <p>Les partners se répartissent des milliers de dossiers et lisent vite. Concrètement, ton dossier a <strong>quelques dizaines de secondes</strong> pour établir trois choses : ce que tu fais (première phrase), pourquoi c'est intéressant (traction ou insight), et qui tu es (vitesse démontrée). Tout le reste du formulaire sert à confirmer cette première impression. C'est pour ça que la Partie 07 insiste autant sur la première phrase et les chiffres nus.</p>
+  <p>Conclusion stratégique : <strong>ne raisonne pas en « j'ai 1 % de chances »</strong>. Le pool contient des milliers de dossiers vides, d'idées sans équipe, de copies d'apps existantes. Un dossier avec de la vraie traction, écrit avec clarté, ne joue pas dans la même catégorie. Ta mission n'est pas de battre 30 000 candidats — c'est d'écrire un dossier qui appartient objectivement au top 10 %, ce qui te met dans la course pour l'interview.</p>
+</section>
+
+<!-- ============================================================ -->
+<div class="chapter" aria-hidden="true"><div class="cin"><span class="rn">II</span><div><div class="ct">Candidater</div><div class="cs">Le formulaire, la vidéo, l'interview, le rejet</div></div></div></div>
+
+<!-- ================= 07 ================= -->
+<section class="part rv" id="s07">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">07</span>
+    <span class="pno">Partie 07</span>
+    <h2 class="pt">L'application, question par question</h2>
+  </div>
+  <p class="lead">Le formulaire se remplit sur <span class="mono">apply.ycombinator.com</span>, <strong>en anglais</strong>. Tu peux sauvegarder et revenir. Voici les questions clés, comment y répondre, et des exemples calibrés sur ton futur SaaS. Règle d'or transversale : <strong>des phrases courtes, des faits, des chiffres. Zéro adjectif marketing.</strong> Les partners lisent des milliers de dossiers — la concision est une forme de respect, et la clarté est le premier test d'intelligence.</p>
+
+  <div class="qa">
+    <div class="q">Décris ce que ta boîte va faire.<span class="en">"Describe what your company does / will make."</span></div>
+    <p>LA question. La première phrase doit être comprise par n'importe qui en 5 secondes. Formule « X pour Y » ou sujet-verbe-complément. Pas de « plateforme révolutionnaire propulsée par l'IA ». Les one-liners historiques des boîtes YC tenaient tous en quelques mots concrets : réserver une chambre chez l'habitant plutôt qu'à l'hôtel (Airbnb), des paiements intégrables en quelques lignes de code (Stripe), tes fichiers partout (Dropbox).</p>
+    <div class="ex">Retentio is an AI agent that runs email retention for e-commerce brands. It writes, sends and optimizes post-purchase flows automatically, and recovers revenue brands are currently losing. We charge 300€/month. Today we do this as a service for French Shopify brands; the software replaces us.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Pourquoi cette idée ? As-tu une expertise du domaine ? Comment sais-tu que les gens en ont besoin ?<span class="en">"Why did you pick this idea? Do you have domain expertise? How do you know people need this?"</span></div>
+    <p>Ils cherchent une <strong>connaissance gagnée sur le terrain</strong>, pas une analyse de marché Wikipedia. Ta réponse idéale raconte : « j'ai fait X à la main pour N clients, et j'ai découvert Y ». C'est exactement ce que ton agence doit te donner.</p>
+    <div class="ex">I spent the last 8 months running email retention manually for N French e-commerce brands as an agency. Every single one had the same problem: [insight précis découvert chez tes clients]. I've written every email myself, seen what converts, and brands paid me X€/month for it — that's how I know they need it.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Qui sont tes concurrents ? Que comprends-tu de ton business qu'ils ne comprennent pas ?<span class="en">"Who are your competitors? What do you understand about your business that they don't?"</span></div>
+    <p>La question la plus importante du dossier. Ne dis JAMAIS « on n'a pas de concurrents » (= tu ne connais pas ton marché). Cite-les (Klaviyo, agences, outils IA génériques…) puis donne ton <strong>secret gagné</strong> — une vérité contre-intuitive apprise au contact des clients, que quelqu'un qui n'a pas fait le terrain ne peut pas savoir.</p>
+    <div class="ex">Klaviyo and Brevo sell tools; the brand still has to do the work. Agencies do the work but don't scale. What we've learned from our clients: [ex. French SMB brands don't want dashboards, they want revenue with zero involvement — they'll pay more for an agent than for a tool]. Nobody serves the French market this way.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Comment tu gagnes (ou gagneras) de l'argent ? Combien ça peut rapporter ?<span class="en">"How do or will you make money? How much could you make?"</span></div>
+    <p>Sois concret sur le modèle (abonnement mensuel, % du revenu récupéré…) et ambitieux mais logique sur le potentiel : nombre de marques e-commerce en Europe × panier moyen. Montre le chemin vers le très gros, pas juste la niche de départ.</p>
+  </div>
+
+  <div class="qa">
+    <div class="q">Quelle est ta stack technique, y compris les modèles et outils de code IA que tu utilises ?<span class="en">"What tech stack are you using? Include AI models and AI coding tools you use."</span></div>
+    <p>Question récente qui te concerne directement : YC assume totalement que les fondateurs construisent avec l'IA. Réponds avec précision (modèles, outils de coding IA, infra). Un « I build with Claude Code and Cursor, I ship weekly » honnête et démontré vaut mieux qu'un vernis technique inventé.</p>
+  </div>
+
+  <div class="qa">
+    <div class="q">Où en es-tu ? Depuis combien de temps ? Des gens l'utilisent ? Du revenu ?<span class="en">"How far along are you? How long have you been working on this? Do you have revenue?"</span></div>
+    <p>Des chiffres nus : clients payants, MRR, croissance %/semaine, rétention. Si tu as un historique agence + un SaaS lancé, sépare bien les deux. La <strong>pente</strong> compte plus que le niveau : 2 K€ de MRR qui croît de 15 %/semaine bat 20 K€ stagnants.</p>
+  </div>
+
+  <div class="qa">
+    <div class="q">Les fondateurs : qui écrit le code ? Répartition de l'equity ?<span class="en">Founder profiles, equity split, "who writes the code?"</span></div>
+    <p>En solo : 100 % de l'equity, et « qui code » = toi, avec les outils IA — à condition que ce soit vrai (voir Partie 13). Mets un lien GitHub public : l'historique de commits est ta preuve horodatée.</p>
+  </div>
+
+  <div class="qa">
+    <div class="q">Dis-nous quelque chose de surprenant ou de drôle que tu as découvert.<span class="en">"Please tell us something surprising or amusing that one of you has discovered."</span></div>
+    <p>Question signature de YC. Le bon réflexe : une découverte contre-intuitive sur tes clients ou ton marché, apprise en vrai. C'est un test déguisé de curiosité et de contact terrain.</p>
+  </div>
+
+  <h3>La vidéo d'une minute — le mode d'emploi complet</h3>
+  <ul class="plain">
+    <li><strong>Format :</strong> ~60 secondes, face caméra, tous les fondateurs présents (toi seul, donc). Pas de montage, pas de musique, pas de slides, pas de script lu — la spontanéité maîtrisée est exactement ce qu'ils évaluent.</li>
+    <li><strong>Structure simple :</strong> qui tu es (5 s) → ce que tu construis, en une phrase (15 s) → la preuve / ce que tu as fait (25 s) → pourquoi toi (15 s).</li>
+    <li><strong>Technique :</strong> lumière de face (une fenêtre suffit), son propre (pièce calme), téléphone à hauteur des yeux, regard caméra.</li>
+    <li><strong>La vraie prépa :</strong> refais-la jusqu'à la sortir d'une traite avec de l'énergie naturelle. 20 prises, c'est normal. C'est aussi un excellent entraînement d'anglais.</li>
+  </ul>
+
+  <h3>Les 7 erreurs qui tuent un dossier</h3>
+  <ul class="check">
+    <li><strong>Le jargon marketing.</strong> « Révolutionnaire », « disruptif », « écosystème » = poubelle directe.</li>
+    <li><strong>Répondre à côté.</strong> Réponds à la question posée, littéralement, puis arrête-toi.</li>
+    <li><strong>Aucun chiffre.</strong> Un dossier sans un seul nombre concret ne passe pas.</li>
+    <li><strong>« Pas de concurrents ».</strong> Signal immédiat que tu ne connais pas ton marché.</li>
+    <li><strong>Cacher ses faiblesses.</strong> Ils les verront. Les nommer toi-même = maturité.</li>
+    <li><strong>Le marché avant le produit.</strong> Trois paragraphes de TAM et zéro sur ce que tu as construit = dossier vide.</li>
+    <li><strong>Attendre la deadline.</strong> Postule tôt, relis, fais relire ton anglais.</li>
+  </ul>
+</section>
+
+<!-- ================= 08 ================= -->
+<section class="part rv" id="s08">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">08</span>
+    <span class="pno">Partie 08</span>
+    <h2 class="pt">L'interview de 10 minutes</h2>
+  </div>
+  <p class="lead">Si ton dossier retient l'attention, tu reçois une invitation. Format : <strong>~10 minutes en visioconférence, face à 2–3 partners</strong>. Pas de slides, pas de pitch préparé. Des questions rapides, des interruptions, des angles morts testés exprès. Décision <strong>le jour même</strong> : un appel téléphonique = accepté, un email = refusé (avec feedback écrit détaillé).</p>
+  <h3>Les questions qui reviennent tout le temps</h3>
+  <ol class="plain">
+    <li>What does your company do? <em>(en 1 phrase)</em></li>
+    <li>How do you know people want this?</li>
+    <li>What's your growth? Users? Revenue? <em>(chiffres exacts, par cœur)</em></li>
+    <li>How do you get your customers? What does it cost you?</li>
+    <li>Who are your competitors — and why will you win?</li>
+    <li>What do you understand that others don't?</li>
+    <li>Why are YOU the right person to build this?</li>
+    <li>What's the biggest thing you've learned from users?</li>
+    <li>How does this become a huge company?</li>
+    <li>You're a solo founder — how do you handle everything alone? <em>(prépare-la spécifiquement)</em></li>
+    <li>What's the biggest risk to this business?</li>
+    <li>What have you shipped in the last two weeks?</li>
+  </ol>
+  <h3>Bonnes vs mauvaises réponses — le tableau qui vaut de l'or</h3>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th style="width:24%">Question</th><th>❌ La réponse qui tue</th><th>✓ La réponse qui marche</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">What do you do?</td><td class="bad">« We're building a revolutionary AI-powered platform that leverages machine learning to transform… »</td><td class="good">« We're an AI agent that runs email retention for e-commerce brands. 14 brands pay us €300/month. »</td></tr>
+      <tr><td class="mono">How big can this get?</td><td class="bad">« The email marketing market is worth $12 billion. » <em>(chiffre recopié, aucun raisonnement)</em></td><td class="good">« ~900K Shopify stores in Europe do €10K+/month. At €300/month, capturing 3% is €100M ARR — and retention expands into SMS, ads, support. »</td></tr>
+      <tr><td class="mono">Who are your competitors?</td><td class="bad">« We don't really have competitors. » <em>(= tu ne connais pas ton marché)</em></td><td class="good">« Klaviyo sells the tool, agencies sell the labor. We sell the outcome. Brands told us they'd pay double to never open a dashboard again. »</td></tr>
+      <tr><td class="mono">What's your growth?</td><td class="bad">« We're growing really fast, things are going great. » <em>(zéro chiffre = zéro crédibilité)</em></td><td class="good">« €2,400 MRR, +13% per week for 9 weeks. Churn: one client in 4 months. »</td></tr>
+      <tr><td class="mono">You're solo — isn't that a problem?</td><td class="bad">Réponse défensive, ou attaque du modèle cofondateurs.</td><td class="good">« It's a real constraint. Here's how I ship anyway: [système]. I built and sold everything you see alone in X months. I'd take the right cofounder — not a random one. »</td></tr>
+      <tr><td class="mono">Question dont tu ignores la réponse</td><td class="bad">Inventer un chiffre ou noyer le poisson. <em>(ils le voient TOUJOURS)</em></td><td class="good">« I don't know yet. Here's how I'll find out this week: [méthode]. »</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Comment se préparer (méthode)</h3>
+  <ul class="plain">
+    <li><strong>Réponses en 1–2 phrases max.</strong> Le format punit les monologues. Réponds, puis tais-toi. Ils creuseront s'ils veulent plus.</li>
+    <li><strong>Commence par le chiffre.</strong> « 14 clients payants, +12 %/semaine depuis 8 semaines » vaut mieux que 30 secondes de contexte.</li>
+    <li><strong>Connais tes metrics PAR CŒUR.</strong> MRR, croissance hebdo, churn, CAC, marge. Hésiter sur ses propres chiffres est éliminatoire.</li>
+    <li><strong>Mock interviews.</strong> Fais-toi cuisiner en conditions réelles (10 min chrono, en anglais) plusieurs fois. Enregistre-toi, réécoute, coupe le gras.</li>
+    <li><strong>Ne sois pas défensif.</strong> S'ils attaquent ton idée, c'est un test. Défends avec des faits, ou reconnais honnêtement.</li>
+    <li><strong>C'est une conversation, pas un oral.</strong> Les meilleurs interviews ressemblent à deux builders qui parlent d'un problème passionnant.</li>
+  </ul>
+  <div class="callout">
+    <div class="ttl">Le sujet anglais — ton chantier caché</div>
+    <p>Tout se passe en anglais : le dossier, la vidéo, l'interview, le batch, San Francisco. Pas besoin d'un accent parfait — YC est rempli de fondateurs internationaux — mais tu dois pouvoir <strong>répondre vite, précisément, sous pression, en anglais</strong>. Programme complet : Module H de la Partie 18. Commence aujourd'hui, pas le mois de la deadline.</p>
+  </div>
+</section>
+
+<!-- ================= 09 ================= -->
+<section class="part rv" id="s09">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">09</span>
+    <span class="pno">Partie 09</span>
+    <h2 class="pt">Le rejet &amp; la re-candidature</h2>
+  </div>
+  <p class="lead">Statistiquement, tu seras refusé au moins une fois. C'est le cas normal, prévu, et — bien joué — c'est même un avantage.</p>
+  <ul class="plain">
+    <li><strong>Aucune limite de candidatures.</strong> YC encourage explicitement à repostuler, et une partie de chaque batch est composée de re-candidats. Beaucoup d'alumni célèbres ont été refusés avant d'être pris.</li>
+    <li><strong>Le delta est le message.</strong> Une re-candidature qui montre une progression nette (« en janvier on avait 3 clients, aujourd'hui 19 et un produit lancé ») est un des signaux les plus puissants qui existent : elle prouve la vitesse ET la persévérance en conditions réelles.</li>
+    <li><strong>Repostuler à l'identique = éliminatoire.</strong> Même pitch, mêmes chiffres, six mois plus tard : c'est la preuve inverse.</li>
+    <li><strong>Tout interviewé refusé reçoit un feedback écrit détaillé.</strong> C'est du conseil gratuit des meilleurs investisseurs early-stage du monde. Tu l'appliques, tu reviens.</li>
+    <li>Avec 4 batchs par an, l'attente entre deux tentatives n'est que de ~3 mois.</li>
+  </ul>
+  <div class="bigq">Le refus n'est pas un verdict sur toi. C'est une photo de ta traction <span class="oc">à un instant T.</span> Change la photo.</div>
+</section>
+
+<!-- ============================================================ -->
+<div class="chapter" aria-hidden="true"><div class="cin"><span class="rn">III</span><div><div class="ct">Le batch &amp; après</div><div class="cs">Les 3 mois à SF, Demo Day, la levée, le réseau à vie</div></div></div></div>
+
+<!-- ================= 10 ================= -->
+<section class="part rv" id="s10">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">10</span>
+    <span class="pno">Partie 10 — Nouveau</span>
+    <h2 class="pt">La vie pendant le batch, semaine par semaine</h2>
+  </div>
+  <p class="lead">Tu es accepté. Voilà à quoi ressemblent tes 3 mois — pour que le jour où tu y es, rien ne te surprenne. Structure officielle + déroulé typique rapporté par les alumni.</p>
+  <div class="tline">
+    <div class="tl"><span class="tw">Avant le batch</span><div class="tt">L'argent arrive, la machine se met en route</div><p>YC investit dès l'acceptation. Tu règles le visa avec les avocats fournis, tu montes la C-Corp avec leurs outils standards, tu trouves un logement à SF (le Slack du batch regorge de colocs entre fondateurs), tu prends ton billet.</p></div>
+    <div class="tl"><span class="tw">Semaine 1</span><div class="tt">Kick-off de 3 jours en présentiel</div><p>Tout le batch réuni sur le campus YC à San Francisco. Tu rencontres ton General Partner dédié, ton petit groupe de boîtes (le « group »), et tu fixes avec ton partner LA metric principale que tu vas pousser pendant 12 semaines — pour toi, ce sera très probablement le MRR.</p></div>
+    <div class="tl"><span class="tw">Semaines 2–9</span><div class="tt">Le rythme de croisière : build, vendre, mesurer</div><p>Ta semaine type : office hours avec ton partner (Slack direct + rendez-vous hebdo), dîner de groupe hebdomadaire où chaque boîte annonce ses chiffres devant les autres (pression sociale redoutablement efficace), un talk d'un fondateur légendaire, et le reste du temps — 60 à 80 h — à construire et vendre. Le programme officiel ne prend que quelques heures par semaine : YC est conçu pour te libérer du temps, pas t'en prendre. Le standard implicite du batch : ~10 % de croissance hebdomadaire sur ta metric.</p></div>
+    <div class="tl"><span class="tw">Semaines 10–11</span><div class="tt">Préparation Demo Day</div><p>Ton partner t'aide à condenser 3 mois en un pitch d'environ une minute : one-liner, traction, marché, équipe. Répétitions multiples, dont typiquement une générale devant des alumni qui te démontent gentiment avant les vrais investisseurs.</p></div>
+    <div class="tl"><span class="tw">Semaine 12</span><div class="tt">Demo Day</div><p>Voir Partie 11 — c'est le coup d'envoi de ta levée, pas une remise de diplôme.</p></div>
+  </div>
+  <h3>Les règles de survie du batch (conseils récurrents des alumni)</h3>
+  <ul class="plain">
+    <li><strong>Une seule metric.</strong> Tout ce qui ne fait pas bouger ta metric principale attend 3 mois. Y compris les conférences, le networking mondain et les refontes de logo.</li>
+    <li><strong>Parle à des utilisateurs tous les jours.</strong> Le conseil nº1 de YC depuis 2005. Littéralement tous les jours.</li>
+    <li><strong>Utilise ton partner à fond.</strong> C'est un ancien fondateur qui a vu des centaines de boîtes : apporte-lui tes vrais problèmes, pas une façade de réussite.</li>
+    <li><strong>Le groupe est ton arme.</strong> Les autres fondateurs du batch deviennent tes premiers clients, testeurs, recruteurs et amis à vie. Donne avant de demander.</li>
+    <li><strong>Dors.</strong> 12 semaines à ce rythme est un marathon couru comme un sprint — les fondateurs qui craquent physiquement perdent des semaines entières.</li>
+  </ul>
+</section>
+
+<!-- ================= 11 ================= -->
+<section class="part rv" id="s11">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">11</span>
+    <span class="pno">Partie 11 — Nouveau</span>
+    <h2 class="pt">Demo Day &amp; la levée qui suit</h2>
+  </div>
+  <p class="lead">Demo Day est le jour où tout le batch pitche devant un public trié de plusieurs centaines d'investisseurs (fonds, business angels d'élite). Format ultra-court : <strong>environ une minute par boîte</strong>. Ce n'est pas la fin du programme — c'est le pistolet de départ de ta levée de seed.</p>
+  <h3>L'anatomie du pitch d'une minute</h3>
+  <ul class="plain">
+    <li><strong>Le one-liner</strong> (5 s) : ce que tu fais, compréhensible par tous.</li>
+    <li><strong>La traction</strong> (20 s) : LE graphique qui monte, les chiffres nus. C'est ce que les investisseurs notent.</li>
+    <li><strong>Le marché</strong> (15 s) : pourquoi ça devient énorme, en raisonnement bottom-up.</li>
+    <li><strong>L'équipe / toi</strong> (10 s) : pourquoi tu es inarrêtable sur ce sujet.</li>
+    <li><strong>La phrase de fin</strong> (5 s) : mémorable, simple.</li>
+  </ul>
+  <h3>La mécanique de la levée post-Demo Day</h3>
+  <ul class="plain">
+    <li>Les investisseurs intéressés te contactent directement après ton pitch — c'est une avalanche de rendez-vous pendant 2 à 6 semaines.</li>
+    <li>YC t'arme pour cette phase : coaching de négociation, standards de marché, et la règle d'or — <strong>créer de la compétition entre investisseurs</strong>, ne jamais négocier avec un seul.</li>
+    <li>Ordres de grandeur habituels ces dernières années : un seed de <strong>1,5 à 3 M$ sur des valorisations de 15 à 25 M$</strong> (en SAFEs avec cap), très variable selon la traction et le marché du moment. Ta traction fixe ta valo — encore elle.</li>
+    <li>Tu n'es pas obligé de lever gros tout de suite : certains prennent peu, restent lean sur les 500 K$, et lèvent plus tard en meilleure position. Ton calcul « default alive » (Partie 19) guide la décision.</li>
+  </ul>
+  <div class="callout flat">
+    <div class="ttl">Le vrai secret de Demo Day</div>
+    <p>Les investisseurs ne découvrent pas les boîtes le jour J : les meilleurs suivent les batchs pendant les 3 mois et les deals chauds sont souvent déjà engagés avant Demo Day. Traduction : ta levée se construit dès la semaine 1 du batch — par ta croissance, pas par ton pitch.</p>
+  </div>
+</section>
+
+<!-- ================= 12 ================= -->
+<section class="part rv" id="s12">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">12</span>
+    <span class="pno">Partie 12 — Nouveau</span>
+    <h2 class="pt">Après YC : alumni, Bookface, perks</h2>
+  </div>
+  <p class="lead">Le batch dure 3 mois. Le statut « YC founder » dure toute la vie de ta boîte — et c'est là que se cache une énorme partie de la valeur des 7 %.</p>
+  <ul class="plain">
+    <li><strong>Bookface</strong> : le réseau social interne réservé aux fondateurs YC. Tu peux y poser n'importe quelle question (technique, juridique, embauche, vente à tel type de client…) et recevoir des réponses de fondateurs qui ont déjà résolu exactement ce problème. Un annuaire de 80 000+ personnes qui répondent, parce que la culture « les alumni s'entraident » est sacrée chez YC.</li>
+    <li><strong>Les deals partenaires</strong> : des centaines de milliers de dollars d'avantages — crédits cloud (AWS, GCP…), outils SaaS gratuits ou remisés, crédits de modèles IA. Pour une boîte IA comme la tienne, ces crédits représentent une vraie extension de runway.</li>
+    <li><strong>Le suivi post-batch</strong> : office hours à la demande avec les partners pour toute la vie de la boîte, aide sur les Séries A/B (préparation, intros), programmes dédiés à la croissance.</li>
+    <li><strong>Le label</strong> : « YC W27 » dans ta bio ouvre des portes — investisseurs, presse, premiers gros clients B2B, recrutement. C'est injuste et c'est réel.</li>
+    <li><strong>L'écosystème</strong> : Work at a Startup (recrutement), Launch YC (visibilité produit), Hacker News (la communauté d'origine), les events alumni.</li>
+  </ul>
+  <p>Et le contre-champ honnête : YC ne sauve pas les boîtes qui ne trouvent pas leur marché. Une partie de chaque batch meurt dans les 2–3 ans, label ou pas. Le réseau multiplie ce qui marche ; il ne crée pas ce qui n'existe pas.</p>
+</section>
+
+<!-- ============================================================ -->
+<div class="chapter" aria-hidden="true"><div class="cin"><span class="rn">IV</span><div><div class="ct">Ton cas précis</div><div class="cs">Solo · non-tech · 18 ans · banlieue parisienne · budget serré</div></div></div></div>
+
+<!-- ================= 13 ================= -->
+<section class="part rv" id="s13">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">13</span>
+    <span class="pno">Partie 13</span>
+    <h2 class="pt">Solo, non-tech, 18 ans, français : l'audit honnête</h2>
+  </div>
+  <p class="lead">Ton profil combine quatre caractéristiques. Deux ne comptent pas. Une est un léger malus. Une est ton vrai problème — et elle se règle.</p>
+  <div class="cards">
+    <div class="card">
+      <span class="k">18 ans · Sans réseau · Banlieue</span>
+      <div class="ct">Impact : zéro</div>
+      <p>Pas d'âge minimum publié, pas de diplôme demandé, pas de réseau requis. YC a financé des fondateurs très jeunes et adore les outsiders affamés. À 18 ans, tu peux signer les contrats et les SAFEs sans complication légale — c'est tout ce qui compte. Ton histoire (parti de rien, réinvesti ses stages, construit seul) est même un <em>atout narratif</em> si elle s'accompagne de preuves.</p>
+    </div>
+    <div class="card">
+      <span class="k">Français / international</span>
+      <div class="ct">Impact : zéro</div>
+      <p>YC finance des boîtes du monde entier. La seule exigence : être physiquement à San Francisco pendant les 3 mois du batch. Voir Partie 14 pour le visa — c'est un problème résolu et encadré par YC.</p>
+    </div>
+    <div class="card">
+      <span class="k">Fondateur solo</span>
+      <div class="ct">Impact : malus réel mais gérable</div>
+      <p>~10 % des boîtes de chaque batch sont solo. La FAQ officielle le dit : « We regularly accept solo founders » — tout en conseillant un cofondateur. Concrètement, la barre est plus haute : tu dois prouver que tu peux <strong>construire ET vendre</strong> seul, à un rythme d'équipe. Ta traction est ta réponse. Et le plus grand solo founder de l'histoire de YC s'appelle Brian Armstrong (Partie 15).</p>
+    </div>
+    <div class="card">
+      <span class="k">Non-technique</span>
+      <div class="ct">Impact : ton vrai sujet</div>
+      <p>Un solo non-technique qui veut vendre un produit logiciel IA : c'est statistiquement le profil le plus dur à faire passer. Ce n'est pas une fatalité — c'est ta priorité de développement des 6 prochains mois. Trois voies ci-dessous, et le programme technique complet au Module F de la Partie 18.</p>
+    </div>
+  </div>
+
+  <h3>Voie A — Devenir « technique avec l'IA » (recommandée pour toi)</h3>
+  <p>Le contexte a radicalement changé : sur le batch W25, <strong>un quart des boîtes avaient ~95 % de leur code écrit par l'IA</strong>, et YC a théorisé le « vibe coding » comme la nouvelle norme. Le patron de YC construit lui-même ses outils avec des agents de code IA. Mais attention à la nuance que YC souligne : ces fondateurs-là restent capables de comprendre, juger et débugger ce que l'IA produit. « Prompter » ne suffit pas — il faut le niveau pour distinguer du bon code du mauvais.</p>
+  <p>Pour toi, la marche est plus petite que tu ne crois : <strong>tu shippes déjà des jeux HTML complets et autonomes</strong>. C'est littéralement de la construction de produit assistée par IA. Le plan : 1 à 2 h par jour à construire ton vrai produit avec des outils comme Claude Code ou Cursor, en shippant chaque semaine une feature utilisée par de vrais clients. Dans 6 mois, à la question « who writes the code? », tu réponds « me » — et c'est vrai, et tu peux le prouver commit par commit.</p>
+  <h3>Voie B — Trouver un cofondateur technique</h3>
+  <p>YC a construit une plateforme gratuite exactement pour ça : <strong>Co-Founder Matching</strong> (ycombinator.com/cofounder-matching), avec des dizaines de milliers de profils, dont beaucoup d'ingénieurs cherchant un profil business/vente. Des boîtes formées sur cette plateforme sont ensuite entrées à YC. Règles si tu explores cette voie : ne t'associe jamais vite, teste en travaillant ensemble sur un vrai sprint de plusieurs semaines, et souviens-toi que YC scrute la solidité de la relation entre cofondateurs (les splits d'equity très inégaux et les associations de 2 mois sont des red flags). Et si un jour tu prends un cofondateur : vesting 4 ans avec cliff d'1 an pour tout le monde, toi compris (Partie 20).</p>
+  <h3>Voie C — La traction qui écrase tout</h3>
+  <p>La voie brute : un business qui croît vite avec des clients qui paient rend toutes les objections secondaires. Un solo non-tech avec 10 K€ de MRR en croissance de 10 %/semaine obtiendra une interview. C'est la logique de fond de tout ce dossier — et elle se cumule avec la voie A.</p>
+  <div class="callout">
+    <div class="ttl">La vérité qui pique</div>
+    <p>Ton facteur limitant pour YC n'est ni ton âge, ni ton passeport, ni ton absence de diplôme. C'est le pattern qu'on a déjà identifié ensemble : <strong>produire des documents au lieu de contacter des clients</strong>. YC mesure exactement une chose — la vitesse à laquelle tu transformes des semaines en preuves. Chaque semaine sans prospection est une ligne vide dans ta future candidature.</p>
+  </div>
+</section>
+
+<!-- ================= 14 ================= -->
+<section class="part rv" id="s14">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">14</span>
+    <span class="pno">Partie 14</span>
+    <h2 class="pt">Visa, légal &amp; budget : France → SF</h2>
+  </div>
+  <p class="lead">Bonne nouvelle : c'est la partie la plus simple, parce que YC la gère avec toi. Rien à préparer avant l'acceptation.</p>
+  <h3>Pour candidater</h3>
+  <p><strong>Rien.</strong> Aucun visa, aucune société immatriculée, aucun statut requis. Le formulaire et l'interview se font en ligne depuis chez toi.</p>
+  <h3>Si tu es accepté — les 3 mois du batch</h3>
+  <ul class="plain">
+    <li>Dès l'acceptation, <strong>YC te connecte à des avocats d'immigration</strong> qui ont accompagné des centaines de fondateurs — c'est écrit dans leur FAQ. Tu ne navigues pas seul.</li>
+    <li>La voie classique pour le batch : venir en <strong>visiteur business (ESTA ou visa B-1)</strong>. En tant que Français, tu es éligible à l'ESTA (90 jours) ; le B-1 (jusqu'à 6 mois) est souvent préféré pour couvrir confortablement le batch et les activités autorisées : réunions, négociations, Demo Day, rencontres investisseurs.</li>
+  </ul>
+  <h3>Le budget réel des 3 mois à San Francisco</h3>
+  <p>Ordres de grandeur pour que tu saches où tu mets les pieds — tout est couvert par les 500 K$ :</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Poste</th><th>Ordre de grandeur</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Vol Paris ⇄ SF</td><td class="mono">500–900 €</td><td>Réserve tôt.</td></tr>
+      <tr><td>Logement (chambre en coloc)</td><td class="mono">1 500–2 500 $/mois</td><td>Les colocs entre fondateurs du batch sont la norme — ça se trouve via le Slack du batch.</td></tr>
+      <tr><td>Vie courante (bouffe, transport, tel)</td><td class="mono">800–1 200 $/mois</td><td>SF est chère ; cuisiner change tout.</td></tr>
+      <tr><td><strong>Total 3 mois</strong></td><td class="mono"><strong>~8 000–13 000 $</strong></td><td>~2 % des 500 K$. Non-sujet.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Après le batch — rester aux US</h3>
+  <p>Le chemin standard des fondateurs YC internationaux : le <strong>visa O-1A</strong> (« extraordinary ability »), pour lequel l'acceptation à YC, la levée de fonds et la presse constituent des preuves solides au dossier. La France ayant un traité d'investissement avec les US, le <strong>visa E-2</strong> est une option supplémentaire dans ta situation. Long terme : green card EB-1A ou EB-2 NIW. Tout ça se décide avec les avocats, au bon moment — pas maintenant. C'est exactement la marche « banlieue → US » de ton plan à 20 ans, avec YC comme véhicule.</p>
+  <h3>La structure de la boîte</h3>
+  <ul class="plain">
+    <li>YC investit dans des sociétés structurées en <strong>C-Corp du Delaware</strong> (le standard des startups US). Si tu es accepté, la création ou la conversion se fait avec l'aide de YC et de ses outils juridiques standards — procédure rodée pour les fondateurs étrangers.</li>
+    <li><strong>Ta micro-entreprise n'est pas un obstacle</strong> et n'est pas la structure du SaaS : elle sert ton agence aujourd'hui. Le SaaS destiné à YC vivra dans sa propre C-Corp le moment venu. Ne crée PAS de C-Corp maintenant « pour te préparer » — ça coûte de l'argent et de l'administratif pour zéro bénéfice tant que tu n'es pas accepté ou en levée.</li>
+    <li>Point fiscal à garder en tête (sans paniquer) : être résident fiscal français avec une C-Corp US est un cas ultra-classique géré par les avocats/comptables au moment venu. Ne laisse personne te vendre des montages exotiques avant même d'avoir un produit.</li>
+  </ul>
+</section>
+
+<!-- ================= 15 ================= -->
+<section class="part rv" id="s15">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">15</span>
+    <span class="pno">Partie 15 — Nouveau</span>
+    <h2 class="pt">Fondateurs qui te ressemblent</h2>
+  </div>
+  <p class="lead">Cinq trajectoires YC documentées, choisies pour une raison précise chacune. Pas pour rêver — pour extraire la mécanique.</p>
+
+  <div class="story">
+    <div class="sh"><span class="co">COINBASE</span><span class="tag hot">Le solo founder</span><span class="tag est">YC 2012</span></div>
+    <p>Brian Armstrong entre à YC <strong>seul</strong>, avec un prototype de portefeuille Bitcoin codé les soirs et week-ends pendant qu'il bossait chez Airbnb. Profil jugé « risqué » : marché crypto minuscule à l'époque, pas de cofondateur. Il compense par un produit qui marche et une obsession du sujet. Coinbase entre en bourse en 2021 et pèse des dizaines de milliards.</p>
+    <div class="lesson"><b>La mécanique à copier</b>Le malus solo se paie en preuves : un produit fonctionnel construit de tes mains + une conviction de marché argumentée. Exactement ta voie A + C.</div>
+  </div>
+
+  <div class="story">
+    <div class="sh"><span class="co">AIRBNB</span><span class="tag hot">Do things that don't scale</span><span class="tag est">YC 2009</span></div>
+    <p>Refusés par une flopée d'investisseurs (« des inconnus qui dorment chez des inconnus ? »), endettés, les fondateurs survivent en vendant des boîtes de céréales détournées pendant l'élection de 2008. Chez YC, le conseil qui change tout : aller à New York, rencontrer leurs hôtes un par un, refaire les photos des annonces à la main. Croissance immédiate.</p>
+    <div class="lesson"><b>La mécanique à copier</b>Faire à la main ce qui ne scale pas pour comprendre le client mieux que quiconque. Ton agence est exactement ça : ta phase « photos à la main ».</div>
+  </div>
+
+  <div class="story">
+    <div class="sh"><span class="co">STRIPE</span><span class="tag hot">Les très jeunes</span><span class="tag est">Auctomatic YC 2007 → Stripe</span></div>
+    <p>Patrick et John Collison passent par YC une première fois adolescents (17 et 19 ans) avec Auctomatic, revendue un an plus tard. Ils reviennent ensuite avec Stripe — « des paiements en sept lignes de code » — soutenue par YC. Stripe est aujourd'hui l'une des boîtes privées les plus valorisées du monde (~90 Md$ début 2025).</p>
+    <div class="lesson"><b>La mécanique à copier</b>L'âge n'a jamais été le sujet : la première boîte sert d'école payée. Ton agence joue ce rôle — même si elle ne devient pas géante, elle t'aura formé et financé.</div>
+  </div>
+
+  <div class="story">
+    <div class="sh"><span class="co">INSTACART</span><span class="tag hot">Le sans-réseau qui force la porte</span><span class="tag est">YC 2012</span></div>
+    <p>Apoorva Mehta a lancé une vingtaine de projets ratés avant Instacart. Il candidate à YC <strong>après la deadline</strong>, sans réponse. Son move : il se sert de sa propre app pour livrer un pack de bières directement aux partners de YC. Interview obtenue, batch intégré — deux mois après le début.</p>
+    <div class="lesson"><b>La mécanique à copier</b>Pas le hack lui-même — l'état d'esprit : la ressource et le produit comme seuls arguments. Et la preuve que les échecs précédents comptent pour zéro si le projet actuel tourne.</div>
+  </div>
+
+  <div class="story">
+    <div class="sh"><span class="co">TWITCH</span><span class="tag hot">Le pivot qui sauve</span><span class="tag est">Justin.tv YC 2007</span></div>
+    <p>Justin.tv — un mec qui streame sa vie 24/7 — plafonne pendant des années. L'équipe remarque qu'une catégorie explose toute seule : le jeu vidéo. Ils pivotent tout sur cette verticale, la renomment Twitch, et la revendent à Amazon pour près d'un milliard en 2014.</p>
+    <div class="lesson"><b>La mécanique à copier</b>Écouter ce que les données hurlent plutôt que défendre l'idée d'origine. 20 à 30 % des boîtes changent d'idée PENDANT le batch — YC considère ça comme une force.</div>
+  </div>
+</section>
+
+<!-- ================= 16 ================= -->
+<section class="part rv" id="s16">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">16</span>
+    <span class="pno">Partie 16 — Nouveau</span>
+    <h2 class="pt">Les alternatives à YC, comparées</h2>
+  </div>
+  <p class="lead">Pour décider en connaissance de cause — et parce qu'un bon fondateur connaît son marché, y compris celui des accélérateurs. Les deals évoluent : vérifie les conditions au moment de candidater.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Programme</th><th>Le deal (ordre de grandeur)</th><th>Pour qui</th><th>Verdict pour toi</th></tr></thead>
+    <tbody>
+      <tr class="hot"><td><strong>Y Combinator</strong></td><td class="mono">500 K$ · ~7 % + MFN · 3 mois SF</td><td>Toute boîte visant le très grand, tout stade.</td><td><span class="tag ok">La cible</span> — meilleur réseau, meilleure marque, process le plus méritocratique.</td></tr>
+      <tr><td><strong>Entrepreneur First (EF)</strong></td><td class="mono">Bourse individuelle puis investissement · hubs dont Paris</td><td>Individus <em>avant</em> l'équipe et l'idée : EF te matche avec un cofondateur sur place.</td><td>L'alternative la plus pertinente pour un solo en Île-de-France si la voie B t'attire. Moins de puissance de réseau que YC.</td></tr>
+      <tr><td><strong>Techstars</strong></td><td class="mono">~120 K$ · ~6–9 % · 3 mois · nombreuses villes</td><td>Boîtes cherchant du mentorat intensif, programmes thématiques.</td><td>Réseau réel mais marque et deal en-dessous de YC. Plan B, pas plan A.</td></tr>
+      <tr><td><strong>Antler</strong></td><td class="mono">Programme pré-équipe puis ticket · mondial</td><td>Très tôt, formation d'équipe.</td><td>Semblable à EF avec une sélectivité moindre. À regarder seulement si EF et YC échouent.</td></tr>
+      <tr><td><strong>South Park Commons</strong></td><td class="mono">Communauté + fonds (programme fondateurs)</td><td>Profils explorant leur prochain projet, souvent expérimentés.</td><td>Pas calibré pour ton stade.</td></tr>
+      <tr><td><strong>Station F (Paris)</strong></td><td class="mono">Campus + programmes (loyer, pas d'investissement direct)</td><td>Écosystème français, networking local.</td><td>Utile pour l'énergie et les contacts FR, mais ce n'est pas un investisseur : ne remplace ni un client ni YC.</td></tr>
+      <tr><td><strong>Sans accélérateur</strong></td><td class="mono">0 % de dilution</td><td>Boîtes rentables tôt qui n'ont pas besoin de capital.</td><td>Ton plan par défaut si YC dit non : l'agence + le SaaS peuvent s'autofinancer. YC est un multiplicateur, pas une condition.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">Règle de lecture : le classement mondial réel des accélérateurs se mesure à une chose — le calibre du réseau et des investisseurs derrière. Sur ce critère, YC est seul dans sa catégorie ; c'est pour ça que ce dossier existe.</p>
+</section>
+
+<!-- ================= 17 ================= -->
+<section class="part rv" id="s17">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">17</span>
+    <span class="pno">Partie 17</span>
+    <h2 class="pt">Le plan — ta route vers YC</h2>
+  </div>
+  <p class="lead">Voilà comment ta situation actuelle se convertit en candidature crédible. La cible réaliste : <strong>Spring 2027</strong> (deadline estimée ~février), avec Winter 2027 (deadline ~novembre 2026) en tir anticipé si l'exécution est violente. Chaque phase alimente littéralement une question du formulaire.</p>
+  <div class="term">
+    <div class="thead"><span class="dot o"></span><span class="dot"></span><span class="dot"></span> roadmap_yc.sh — juillet 2026 → spring 2027</div>
+    <div class="tbody">
+<span class="ln cm"># PHASE 1 — MAINTENANT → OCTOBRE 2026 : LES PREUVES DE VENTE</span>
+<span class="ln">→ <b>Prospection quotidienne</b> : DMs + cold emails. C'est la priorité absolue.</span>
+<span class="ln">→ Objectif : <span class="hot">clients agence payants</span> + études de cas chiffrées (% de CA récupéré).</span>
+<span class="ln">→ Chaque client = une ligne dans "How do you know people need this?"</span>
+<span class="ln">→ Noter chaque insight terrain → futur "What do you understand that others don't?"</span>
+<span class="ln cm">   [Ce que ça prouve à YC : tu sais VENDRE.]</span>
+<span class="ln"> </span>
+<span class="ln cm"># PHASE 2 — EN PARALLÈLE : DEVENIR TECHNIQUE (1-2h/jour, pas plus)</span>
+<span class="ln">→ Construire le SaaS toi-même avec les outils de code IA. Ship hebdomadaire.</span>
+<span class="ln">→ Tes clients agence = tes premiers beta-testeurs. Le produit t'automatise toi.</span>
+<span class="ln cm">   [Ce que ça prouve à YC : tu sais CONSTRUIRE. Réponse à "who writes code?" : moi.]</span>
+<span class="ln"> </span>
+<span class="ln cm"># PHASE 3 — DÉCEMBRE 2026 : LANCEMENT SAAS (ton milestone existant)</span>
+<span class="ln">→ Basculer les clients agence sur le produit. Facturer dès le jour 1.</span>
+<span class="ln">→ Tracker religieusement : <span class="hot">MRR, croissance %/semaine, churn</span>.</span>
+<span class="ln">→ À partir d'ici, chaque semaine écrit ta candidature à ta place.</span>
+<span class="ln"> </span>
+<span class="ln cm"># PHASE 4 — JANV → FÉV 2027 : LA CANDIDATURE</span>
+<span class="ln">→ 12-16 semaines de courbe de croissance = un dossier avec une PENTE.</span>
+<span class="ln">→ Rédiger le dossier en 2 soirées max. Vidéo 1 min. Faire relire l'anglais.</span>
+<span class="ln">→ Mock interviews en anglais × 5 minimum. Checklist finale (Partie 21) à 100 %.</span>
+<span class="ln">→ <span class="okc">Postuler tôt pour Spring 2027.</span> Refus = feedback = re-candidature Summer.</span>
+<span class="ln"> </span>
+<span class="ln cm"># OPTION AGRESSIVE (si traction agence forte dès l'automne)</span>
+<span class="ln">→ Candidater Winter 2027 (deadline ~nov 2026) avec les chiffres agence seuls.</span>
+<span class="ln">→ Espérance faible, mais coût = 1 soirée, gain = feedback + historique de progression.</span>
+<span class="ln"> </span>
+<span class="ln cm"># RÈGLE ANTI-PATTERN (non négociable)</span>
+<span class="ln"><span class="hot">→ Ce dossier ne remplace aucune session de prospection. Jamais.</span></span>
+<span class="ln cursor">→ Une candidature YC s'écrit dans les DMs envoyés, pas dans les documents produits. </span>
+    </div>
+  </div>
+  <h3>À quoi ressemble un dossier « crédible » pour ton profil</h3>
+  <ul class="check">
+    <li><strong>Revenu réel</strong> : des clients qui paient tous les mois (agence puis SaaS), avec noms et chiffres.</li>
+    <li><strong>Une pente</strong> : 10–15 %+ de croissance hebdomadaire sur 2–3 mois de SaaS, même en partant de petit.</li>
+    <li><strong>La preuve technique</strong> : un produit que TU as construit et que tu peux démontrer en live.</li>
+    <li><strong>Un secret terrain</strong> : 2–3 insights contre-intuitifs issus de dizaines de conversations clients (méthode Mom Test — tu as le livre).</li>
+    <li><strong>Un anglais opérationnel</strong> : capable de tenir 10 minutes de questions rapides.</li>
+  </ul>
+</section>
+
+<div class="chapter" aria-hidden="true"><div class="cin"><span class="rn">V</span><div><div class="ct">Maîtriser le business</div><div class="cs">Le curriculum complet, les glossaires, la checklist, les ressources</div></div></div></div>
+
+<!-- ================= 18 : LE CURRICULUM ================= -->
+<section class="part rv" id="s18">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">18</span>
+    <span class="pno">Partie 18</span>
+    <h2 class="pt">Le curriculum : tout ce que tu dois apprendre</h2>
+  </div>
+  <p class="lead">YC ne t'apprendra pas le business — YC accélère des gens qui le connaissent déjà par la pratique. Voici les <strong>8 modules</strong> qui couvrent tout ce qu'un fondateur doit maîtriser pour candidater, survivre à l'interview, et tenir le rythme du batch. Pour chaque module : quoi apprendre, comment, et le test qui prouve que c'est acquis. Règle absolue : <strong>chaque module s'apprend en faisant, sur ton vrai business</strong> — la théorie seule ne compte pas.</p>
+
+  <div class="module">
+    <div class="mn">A</div>
+    <div class="mb">
+      <div class="mt">Vente &amp; closing</div>
+      <span class="ms">Priorité nº1 — c'est le module qui paie tous les autres</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li><strong>Cold outreach</strong> : un message court, personnalisé sur un fait précis du prospect, une promesse chiffrée, un seul appel à l'action. Volume quotidien + relances systématiques (la majorité des réponses viennent des relances).</li>
+        <li><strong>Le call de découverte</strong> : 70 % d'écoute. Questions sur leur passé réel (« comment vous gérez vos emails aujourd'hui ? combien ça vous rapporte ? »), jamais sur des hypothèses (« est-ce que vous achèteriez… ? »). C'est la méthode Mom Test appliquée à la vente.</li>
+        <li><strong>Le closing</strong> : une offre simple à dire oui, le traitement des 3 objections universelles (prix, confiance, timing), et surtout <em>demander</em> la vente explicitement.</li>
+        <li><strong>Le suivi pipeline</strong> : un tableau simple (prospect → contacté → répondu → call → proposition → client) mis à jour chaque jour. Tes taux de conversion à chaque étape sont tes premiers metrics.</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul>
+        <li>Tes livres, dans cet ordre d'application : <em>The Mom Test</em> (questions), <em>Influence</em> de Cialdini (leviers : preuve sociale, réciprocité, rareté — utilisés éthiquement), Carnegie (relation), Hormozi (structure d'offre). Lis avec un carnet : chaque concept doit être appliqué dans les 24 h sur de vrais prospects.</li>
+        <li>Enregistre tes calls (avec accord), réécoute, note ce qui bloque.</li>
+      </ul>
+      <div class="test"><b>Le test YC</b>Tu peux répondre à « How do you get customers? What does it cost you? » avec tes taux réels : X DMs → Y réponses → Z calls → N clients.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">B</div>
+    <div class="mb">
+      <div class="mt">Offre &amp; pricing</div>
+      <span class="ms">La différence entre ramer et signer</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li><strong>La value equation</strong> (Hormozi) : valeur perçue = (résultat rêvé × probabilité perçue) ÷ (délai × effort demandé). Ton offre doit maximiser le haut et écraser le bas — d'où la force du « on fait tout à votre place ».</li>
+        <li><strong>Le pricing par la valeur</strong> : tu factures un % du problème résolu, pas ton temps. Si tu récupères 5 000 €/mois de CA perdu, 500 €/mois est une évidence pour le client.</li>
+        <li><strong>La garantie et la réduction du risque</strong> : garantie de résultat, période d'essai, paiement au succès — les outils qui font signer un inconnu de 18 ans sans références.</li>
+        <li><strong>L'ancrage et la structure d'offre</strong> : une offre principale claire, éventuellement 2 paliers, jamais un catalogue.</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul><li><em>$100M Offers</em> (Hormozi — tu l'as) appliqué ligne par ligne à ton offre agence, puis à ton pricing SaaS. Teste 2 pricings sur de vrais prospects et compare les taux de closing : c'est ta première expérience de pricing réelle.</li></ul>
+      <div class="test"><b>Le test YC</b>À « How do you make money? », tu expliques ton pricing ET pourquoi il est fixé là, preuve terrain à l'appui.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">C</div>
+    <div class="mb">
+      <div class="mt">Marketing &amp; acquisition</div>
+      <span class="ms">Positionnement, copywriting, canaux</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li><strong>Le positionnement</strong> : définir ton ICP (profil client idéal) au scalpel — taille de boîte, plateforme, CA, douleur précise. « Marques Shopify françaises 50–500 K€/mois » bat « les e-commerçants ».</li>
+        <li><strong>Le copywriting</strong> : clarté avant créativité. Structure problème → agitation → solution, bénéfices chiffrés, preuve. Une landing page = une promesse, une preuve, un CTA.</li>
+        <li><strong>La logique des canaux</strong> : outbound (ton moteur actuel), contenu/build in public (actif long terme gratuit), partenariats (agences Shopify, freelances), référencement plus tard. Un canal maîtrisé à fond bat quatre canaux moyens.</li>
+        <li><strong>Mesurer</strong> : coût et taux de conversion par canal — c'est ce qui devient ton CAC (Partie 19).</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul><li>Réécris ta landing et tes DMs toutes les 2 semaines en fonction des réponses réelles. Étudie les pages des boîtes YC de ta catégorie dans le Startup Directory : leur pitch d'une ligne est un cours gratuit de positionnement.</li></ul>
+      <div class="test"><b>Le test YC</b>Tu sais dire quel canal t'amène des clients, à quel coût, et pourquoi tu doubles dessus.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">D</div>
+    <div class="mb">
+      <div class="mt">Produit &amp; clients</div>
+      <span class="ms">Talk to users · MVP · product-market fit</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li><strong>Les interviews clients</strong> (Mom Test) : parler du passé et des faits, jamais des intentions. Objectif : 20+ conversations documentées — c'est la matière première de ton « secret terrain ».</li>
+        <li><strong>Le MVP</strong> : la plus petite chose <em>facturable</em>. Ton agence EST ton MVP concierge : tu fais à la main ce que le logiciel fera — exactement la méthode « Do Things That Don't Scale » de Paul Graham.</li>
+        <li><strong>La boucle d'itération</strong> : ship hebdomadaire → feedback client → priorisation impitoyable (ce qui fait payer ou rester, le reste attend).</li>
+        <li><strong>Le product-market fit</strong> : le reconnaître aux signaux — courbes de rétention qui s'aplatissent au lieu de tomber à zéro, clients qui râlent quand ça tombe en panne, bouche-à-oreille spontané. Repère classique : si 40 %+ de tes utilisateurs seraient « très déçus » de perdre le produit, tu chauffes.</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul><li>Startup School (cours gratuit de YC) — les leçons de Michael Seibel sur le MVP et les users. Chaque livraison client agence = une interview déguisée : note tout.</li></ul>
+      <div class="test"><b>Le test YC</b>« What's the biggest thing you've learned from users? » — tu as 3 réponses contre-intuitives, datées, sourcées.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">E</div>
+    <div class="mb">
+      <div class="mt">Metrics &amp; finance startup</div>
+      <span class="ms">Le langage dans lequel YC pense</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li>Les ~17 termes du glossaire metrics (Partie 19) : définition, formule, et <em>tes</em> chiffres à toi, par cœur.</li>
+        <li><strong>Un dashboard simple</strong> tenu à la main chaque semaine : MRR, nouveaux clients, churn, croissance %/semaine, cash. Un tableur suffit — le réflexe compte plus que l'outil.</li>
+        <li><strong>La logique unit economics</strong> : ce que te coûte un client (CAC) vs ce qu'il te rapporte sur sa durée de vie (LTV), et le seuil de viabilité (LTV ≥ 3× CAC).</li>
+        <li><strong>Default alive or default dead</strong> (essai de PG) : à croissance et dépenses constantes, ta boîte atteint-elle la rentabilité avant la fin du cash ? Tu dois toujours connaître la réponse.</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul><li>Crée ton dashboard cette semaine, même avec 1 client. Mets-le à jour chaque dimanche dans ton débrief. En 3 mois, ces chiffres seront des réflexes.</li></ul>
+      <div class="test"><b>Le test YC</b>N'importe quelle question chiffrée en interview → réponse en moins de 2 secondes, sans regarder nulle part.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">F</div>
+    <div class="mb">
+      <div class="mt">Technique — devenir builder IA</div>
+      <span class="ms">De « je fais des jeux HTML » à « je shippe mon SaaS »</span>
+      <h4>À maîtriser (dans l'ordre)</h4>
+      <ul>
+        <li><strong>Socle (tu l'as déjà en partie)</strong> : HTML/CSS/JavaScript — tes jeux MO$ CASINO prouvent que tu shippes déjà. Formalise : comprendre chaque bloc de code que l'IA te donne avant de l'utiliser.</li>
+        <li><strong>Comment le web marche</strong> : client/serveur, requêtes HTTP, API, JSON, webhooks. Indispensable pour ton produit (les webhooks Shopify sont littéralement ton cœur de métier).</li>
+        <li><strong>Git &amp; GitHub</strong> : versionner ton code, historique public de commits = la preuve horodatée que c'est TOI qui construis.</li>
+        <li><strong>Une stack simple et moderne</strong> : un framework web (ex. Next.js), une base de données managée (ex. Supabase/Postgres), le déploiement en un clic (ex. Vercel), Stripe pour facturer, une API d'envoi d'emails. Pas de sur-ingénierie : la stack la plus simple qui encaisse de l'argent.</li>
+        <li><strong>La compétence YC 2026</strong> : savoir lire, juger et débugger du code généré par l'IA. C'est exactement la nuance que les partners YC soulignent — le vibe coding marche pour ceux qui comprennent ce qui sort.</li>
+      </ul>
+      <h4>Comment l'apprendre — 3 projets progressifs</h4>
+      <ul>
+        <li><strong>Projet 1 (2 sem.)</strong> : landing page + formulaire waitlist branché à une base de données, déployée en ligne.</li>
+        <li><strong>Projet 2 (3–4 sem.)</strong> : un dashboard qui se connecte à l'API d'une boutique Shopify test et affiche ses commandes.</li>
+        <li><strong>Projet 3 (4–6 sem.)</strong> : une séquence email automatisée déclenchée par un événement boutique — le squelette de ton vrai produit.</li>
+      </ul>
+      <div class="test"><b>Le test YC</b>« Who writes the code? » → « Me, with Claude Code/Cursor » + une démo live que tu pilotes seul + un historique GitHub qui le prouve.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">G</div>
+    <div class="mb">
+      <div class="mt">Fundraising &amp; langage investisseur</div>
+      <span class="ms">Pour ne jamais avoir l'air perdu face à un VC</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li><strong>Les instruments</strong> : SAFE (cap, discount, post-money), equity, actions préférentielles vs ordinaires. Relis la Partie 03 jusqu'à pouvoir l'expliquer à quelqu'un d'autre.</li>
+        <li><strong>La mécanique de dilution</strong> : cap table (qui possède quoi), pre-money vs post-money, option pool, pro-rata. Sache calculer ce qu'il te reste après chaque tour — tous les termes sont en Partie 20.</li>
+        <li><strong>Le déroulé d'une levée</strong> : term sheet → due diligence → closing. Le rôle du lead investor. Pourquoi on lève (accélérer ce qui marche déjà) et quand on ne lève pas.</li>
+        <li><strong>Le pitch Demo Day</strong> : 1 minute, une traction, une vision — anatomie complète en Partie 11.</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul><li>Les documents SAFE officiels sont publics sur ycombinator.com/documents — lis-les une fois en entier. La Startup Library a des guides complets sur chaque terme. Exercice : modélise ta propre cap table fictive après un YC + un seed (le tableau de dilution de la Partie 03 est ton point de départ).</li></ul>
+      <div class="test"><b>Le test YC</b>Tu peux expliquer le deal YC (les deux SAFEs, la clause MFN, la dilution) sans une seule hésitation.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="mn">H</div>
+    <div class="mb">
+      <div class="mt">Anglais opérationnel</div>
+      <span class="ms">20 minutes par jour, non négociable</span>
+      <h4>À maîtriser</h4>
+      <ul>
+        <li>Comprendre à vitesse réelle les contenus startup US (podcasts, vidéos YC sans sous-titres à terme).</li>
+        <li>Répondre à des questions business à l'oral en 1–2 phrases, sous pression.</li>
+        <li>Le vocabulaire startup actif : tous les termes des Parties 19 et 20, plus le lexique de la vente (pipeline, churn, upsell…).</li>
+      </ul>
+      <h4>Comment l'apprendre</h4>
+      <ul>
+        <li><strong>Immersion</strong> : 100 % de ta consommation startup passe en VO dès aujourd'hui (chaîne YC, podcasts fondateurs). Sous-titres anglais, puis rien.</li>
+        <li><strong>Shadowing</strong> : 10 min/jour, tu répètes à voix haute par-dessus une vidéo YC — accent et rythme se calent tout seuls.</li>
+        <li><strong>Production</strong> : tes 4 lignes de débrief quotidien, écris-les en anglais. Dès novembre : 1 mock interview en anglais par semaine.</li>
+      </ul>
+      <div class="test"><b>Le test YC</b>Tenir 10 minutes de questions rapides en anglais sans chercher tes mots sur TES chiffres et TON business.</div>
+    </div>
+  </div>
+
+  <h3>Le planning d'apprentissage sur 6 mois</h3>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Période</th><th>Modules au premier plan</th><th>Application concrète (la seule qui compte)</th></tr></thead>
+    <tbody>
+      <tr><td class="mono"><strong>Juil–Août 2026</strong></td><td>A Vente · B Offre · H Anglais (démarre)</td><td>Prospection quotidienne, offre Hormozi finalisée, premiers clients agence, débrief en anglais</td></tr>
+      <tr><td class="mono"><strong>Sept–Oct 2026</strong></td><td>F Technique (projets 1–2) · D Produit · C Marketing</td><td>15+ interviews Mom Test documentées, dashboard Shopify fonctionnel, landing v2</td></tr>
+      <tr><td class="mono"><strong>Nov–Déc 2026</strong></td><td>F Technique (projet 3) · E Metrics</td><td>SaaS live en décembre, Stripe branché, dashboard metrics hebdo, clients agence migrés</td></tr>
+      <tr><td class="mono"><strong>Janv–Fév 2027</strong></td><td>G Fundraising · H Anglais (intensif)</td><td>Dossier YC rédigé, 5+ mock interviews EN, candidature Spring 2027 envoyée tôt</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout">
+    <div class="ttl">La règle qui protège tout le reste</div>
+    <p>Apprentissage plafonné à <strong>1 h par jour</strong> (+ 20 min d'anglais), toujours APRÈS le bloc de prospection, jamais à la place. Tu connais ton pattern : transformer « apprendre le business » en excuse pour ne pas faire de business. Chaque module ci-dessus se valide par une action réelle sur de vrais clients — sinon il ne compte pas.</p>
+  </div>
+</section>
+
+<!-- ================= 19 : GLOSSAIRE METRICS ================= -->
+<section class="part rv" id="s19">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">19</span>
+    <span class="pno">Partie 19</span>
+    <h2 class="pt">Glossaire metrics &amp; finance</h2>
+  </div>
+  <p class="lead">Les 17 termes que YC, les investisseurs et les fondateurs utilisent en permanence. Objectif : les connaître au point de donner <strong>tes propres chiffres</strong> pour chacun sans réfléchir. Les repères indiqués sont les standards SaaS early-stage — des ordres de grandeur, pas des lois.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Terme</th><th>Définition express</th><th>Formule / repère</th></tr></thead>
+    <tbody>
+      <tr><td><strong>MRR</strong></td><td>Monthly Recurring Revenue — revenu récurrent mensuel, LA metric SaaS.</td><td class="mono">Σ abonnements mensuels actifs</td></tr>
+      <tr><td><strong>ARR</strong></td><td>Annual Recurring Revenue — le même en version annuelle.</td><td class="mono">MRR × 12</td></tr>
+      <tr><td><strong>Croissance hebdo</strong></td><td>Le rythme de croissance du MRR (ou des users) par semaine. La metric fétiche de YC.</td><td class="mono">5–7 %/sem = bien · 10 % = exceptionnel</td></tr>
+      <tr><td><strong>Churn</strong></td><td>Taux de clients (ou de revenu) perdus sur une période.</td><td class="mono">clients perdus ÷ clients début de mois · &lt;3–5 %/mois acceptable en SMB, moins = mieux</td></tr>
+      <tr><td><strong>Rétention / NRR</strong></td><td>L'inverse du churn. NRR = revenu conservé + expansion des clients existants.</td><td class="mono">NRR &gt; 100 % = tes clients grossissent : signal en or</td></tr>
+      <tr><td><strong>CAC</strong></td><td>Customer Acquisition Cost — ce que te coûte l'acquisition d'un client (temps inclus).</td><td class="mono">dépenses acquisition ÷ nouveaux clients</td></tr>
+      <tr><td><strong>LTV</strong></td><td>Lifetime Value — ce qu'un client te rapporte sur toute sa durée de vie.</td><td class="mono">ARPA × marge brute ÷ churn mensuel</td></tr>
+      <tr><td><strong>LTV : CAC</strong></td><td>Le ratio de viabilité de ton acquisition.</td><td class="mono">≥ 3 = sain · &lt; 1 = tu perds de l'argent à vendre</td></tr>
+      <tr><td><strong>Payback CAC</strong></td><td>Temps pour rembourser le coût d'acquisition d'un client.</td><td class="mono">CAC ÷ marge mensuelle par client · &lt; 12 mois visé</td></tr>
+      <tr><td><strong>ARPA</strong></td><td>Average Revenue Per Account — revenu moyen par client.</td><td class="mono">MRR ÷ nombre de clients</td></tr>
+      <tr><td><strong>Marge brute</strong></td><td>Ce qui reste après les coûts directs de service (serveurs, APIs, IA…).</td><td class="mono">(revenu − coûts directs) ÷ revenu · ~80 % attendu en SaaS</td></tr>
+      <tr><td><strong>Burn rate</strong></td><td>Le cash net que tu brûles par mois.</td><td class="mono">dépenses − revenus (mensuel)</td></tr>
+      <tr><td><strong>Runway</strong></td><td>Le temps de survie au rythme actuel.</td><td class="mono">cash en banque ÷ burn mensuel</td></tr>
+      <tr><td><strong>Default alive / dead</strong></td><td>Concept de Paul Graham : à croissance et coûts constants, atteins-tu la rentabilité avant la fin du cash ?</td><td class="mono">à recalculer chaque mois — réponse à connaître en permanence</td></tr>
+      <tr><td><strong>PMF</strong></td><td>Product-Market Fit — le marché aspire ton produit au lieu que tu le pousses.</td><td class="mono">signal : 40 %+ d'users « très déçus » de te perdre · rétention qui s'aplatit</td></tr>
+      <tr><td><strong>TAM / SAM / SOM</strong></td><td>Marché total / adressable avec ton produit / captable à court terme.</td><td class="mono">à construire bottom-up : nb de clients cibles × prix, pas un chiffre Gartner recopié</td></tr>
+      <tr><td><strong>North Star</strong></td><td>LA metric unique qui capture la valeur livrée, celle que toute la boîte pousse.</td><td class="mono">pour toi, probablement : € de CA récupéré pour tes clients / semaine</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout flat">
+    <div class="ttl">Comment mémoriser tout ça</div>
+    <p>Tu ne mémorises pas — tu <strong>utilises</strong>. Ton dashboard hebdo (Module E) contient MRR, croissance, churn, CAC, runway. En le remplissant chaque dimanche pendant 3 mois, ces termes deviennent ta langue maternelle. Le vocabulaire de la levée de fonds, lui, est dans la partie suivante.</p>
+  </div>
+</section>
+
+<!-- ================= 20 : GLOSSAIRE FUNDRAISING ================= -->
+<section class="part rv" id="s20">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">20</span>
+    <span class="pno">Partie 20 — Nouveau</span>
+    <h2 class="pt">Glossaire fundraising &amp; légal</h2>
+  </div>
+  <p class="lead">Le vocabulaire de la levée de fonds. Tu en croiseras chaque terme dans le deal YC, au Demo Day, puis dans ta première term sheet. Un fondateur qui maîtrise ce langage négocie ; un fondateur qui le découvre en réunion se fait manger.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Terme</th><th>Définition express</th><th>Ce qu'il faut retenir pour toi</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SAFE</strong></td><td>Simple Agreement for Future Equity — argent maintenant, actions à la prochaine levée « priced ». Pas une dette : pas d'intérêts, pas d'échéance.</td><td class="mono">Inventé par YC. Le standard mondial early-stage. Ton deal YC = 2 SAFEs.</td></tr>
+      <tr><td><strong>Valuation cap</strong></td><td>Le plafond de valorisation auquel un SAFE se convertit, quoi qu'il arrive au tour suivant.</td><td class="mono">Cap bas = plus de dilution pour toi. Le SAFE de 375 K$ de YC n'a PAS de cap (uncapped).</td></tr>
+      <tr><td><strong>Discount</strong></td><td>Réduction (souvent 10–20 %) accordée au détenteur du SAFE sur le prix du tour suivant.</td><td class="mono">Récompense le risque pris tôt. Cap et discount : c'est l'un OU l'autre qui s'applique (le plus favorable).</td></tr>
+      <tr><td><strong>Pre-money / Post-money</strong></td><td>Valorisation avant / après l'entrée de l'argent. Post = pre + montant levé.</td><td class="mono">Toujours clarifier lequel on cite : à 5 M$ « pre » avec 1 M$ levé, l'investisseur a 1/6, pas 1/5.</td></tr>
+      <tr><td><strong>Dilution</strong></td><td>La baisse de ton % de propriété à chaque émission de nouvelles actions.</td><td class="mono">Normale et saine si le gâteau grossit plus vite que ta part ne rétrécit. Tableau complet en Partie 03.</td></tr>
+      <tr><td><strong>Cap table</strong></td><td>Le tableau de qui possède quoi : fondateurs, investisseurs, employés, à jour après chaque tour.</td><td class="mono">Tiens-la dans un tableur dès le jour 1. Une cap table sale (50 micro-investisseurs, ex-associé fantôme à 15 %) fait fuir les VCs.</td></tr>
+      <tr><td><strong>Option pool</strong></td><td>Réserve d'actions (souvent 10–15 %) créée pour recruter les futurs employés.</td><td class="mono">Les VCs demandent souvent de la créer AVANT leur entrée — donc elle dilue les fondateurs, pas eux. Point de négociation classique.</td></tr>
+      <tr><td><strong>Vesting</strong></td><td>Tes propres actions s'acquièrent progressivement — standard : 4 ans, avec un « cliff » d'1 an (rien avant 12 mois, puis 25 %, puis mensuel).</td><td class="mono">Oui, même solo : YC et les VCs l'exigent. Ça protège la boîte si un fondateur part.</td></tr>
+      <tr><td><strong>Pro-rata</strong></td><td>Le droit d'un investisseur de remettre au tour suivant pour maintenir son %.</td><td class="mono">YC exerce souvent son pro-rata sur ses meilleures boîtes. C'est un signal, dans les deux sens.</td></tr>
+      <tr><td><strong>Priced round</strong></td><td>Un tour avec valorisation fixée et émission d'actions (vs SAFE). Ton seed post-YC sera probablement le premier.</td><td class="mono">C'est là que tous tes SAFEs se convertissent d'un coup — d'où l'importance de modéliser ta dilution AVANT.</td></tr>
+      <tr><td><strong>Term sheet</strong></td><td>Le document non contraignant qui résume les conditions d'un investissement : montant, valo, board, droits.</td><td class="mono">Recevoir une term sheet ≠ avoir l'argent. Fais-la TOUJOURS relire par un avocat startup.</td></tr>
+      <tr><td><strong>Lead investor</strong></td><td>L'investisseur qui fixe les termes du tour, met le plus gros chèque, et entraîne les autres.</td><td class="mono">Trouver le lead = 90 % du travail d'une levée. Le reste suit.</td></tr>
+      <tr><td><strong>Due diligence</strong></td><td>La vérification par l'investisseur avant de signer : finances, contrats, code, équipe, légal.</td><td class="mono">Tiens un dossier propre dès maintenant (contrats clients signés, compta claire) : la DD se prépare des mois avant.</td></tr>
+      <tr><td><strong>Bridge</strong></td><td>Petit tour intermédiaire (souvent en SAFE) pour tenir jusqu'au prochain vrai tour.</td><td class="mono">Neutre si stratégique, mauvais signal si c'est pour survivre. Les investisseurs font la différence.</td></tr>
+      <tr><td><strong>Down round</strong></td><td>Lever à une valorisation inférieure au tour précédent.</td><td class="mono">Très dilutif et douloureux. La cause classique : avoir levé trop haut trop tôt. Lever raisonnable &gt; lever maximal.</td></tr>
+      <tr><td><strong>Board</strong></td><td>Le conseil d'administration — le seul organe qui peut virer le CEO (toi).</td><td class="mono">Early stage : garde un board léger (toi + 1 investisseur + 1 indépendant max). Chaque siège donné est quasi irréversible.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout flat">
+    <div class="ttl">L'ordre d'apprentissage malin</div>
+    <p>Commence par comprendre à fond <strong>ton propre deal YC</strong> (Partie 03) : SAFE, cap, MFN, dilution — c'est un cas pratique complet. Puis lis les modèles SAFE officiels sur ycombinator.com/documents. Le reste (term sheet, board, pro-rata) devient concret au moment du seed — sache juste le reconnaître avant.</p>
+  </div>
+</section>
+
+<!-- ================= 21 : CHECKLIST ================= -->
+<section class="part rv" id="s21">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">21</span>
+    <span class="pno">Partie 21 — Nouveau · Interactive</span>
+    <h2 class="pt">Ta checklist avant de candidater</h2>
+  </div>
+  <p class="lead">Les 18 cases à cocher avant d'envoyer ta candidature Spring 2027. Coche-les ici directement — <strong>ta progression est sauvegardée</strong> et t'attend à ta prochaine ouverture du dossier. Le jour où tout est vert, tu postules. Pas avant, pas après.</p>
+  <ul class="todo" id="ycTodo">
+    <li><span class="cat">Traction — le nerf du dossier</span></li>
+    <li><label><input type="checkbox" data-k="t1"><span>Des clients agence <strong>payants</strong> avec contrats et résultats chiffrés (% de CA récupéré documenté)</span></label></li>
+    <li><label><input type="checkbox" data-k="t2"><span>SaaS lancé et <strong>facturé dès le jour 1</strong> (Stripe branché, vrais paiements)</span></label></li>
+    <li><label><input type="checkbox" data-k="t3"><span>8–12 semaines minimum de courbe MRR avec une <strong>pente visible</strong> (viser 10 %+/semaine)</span></label></li>
+    <li><label><input type="checkbox" data-k="t4"><span>Dashboard metrics tenu chaque semaine : MRR, croissance, churn, CAC — <strong>connus par cœur</strong></span></label></li>
+    <li><label><input type="checkbox" data-k="t5"><span>20+ conversations clients documentées → 3 insights « secret terrain » formulés</span></label></li>
+    <li><span class="cat">Produit &amp; preuve technique</span></li>
+    <li><label><input type="checkbox" data-k="p1"><span>Le produit est construit <strong>par toi</strong> (outils IA inclus) et tu peux le démontrer en live seul</span></label></li>
+    <li><label><input type="checkbox" data-k="p2"><span>Historique GitHub public avec des commits réguliers sur plusieurs mois</span></label></li>
+    <li><label><input type="checkbox" data-k="p3"><span>Tu sais expliquer ta stack (framework, base de données, modèles IA) sans réciter</span></label></li>
+    <li><label><input type="checkbox" data-k="p4"><span>Les 3 projets progressifs du Module F terminés (landing → dashboard Shopify → séquence auto)</span></label></li>
+    <li><span class="cat">Le dossier lui-même</span></li>
+    <li><label><input type="checkbox" data-k="d1"><span>Réponse « What does your company do? » en 1 phrase, testée sur quelqu'un qui ne connaît rien au sujet</span></label></li>
+    <li><label><input type="checkbox" data-k="d2"><span>Chaque question du formulaire : réponse courte, factuelle, avec des chiffres (Partie 07 respectée)</span></label></li>
+    <li><label><input type="checkbox" data-k="d3"><span>Vidéo fondateur d'1 minute tournée d'une traite, claire, énergique, sans montage</span></label></li>
+    <li><label><input type="checkbox" data-k="d4"><span>Anglais du dossier relu par quelqu'un de fiable (ou un outil, puis un humain)</span></label></li>
+    <li><label><input type="checkbox" data-k="d5"><span>Candidature prête <strong>2 semaines avant la deadline</strong> — envoyée tôt, pas le dernier soir</span></label></li>
+    <li><span class="cat">Interview &amp; anglais</span></li>
+    <li><label><input type="checkbox" data-k="i1"><span>5+ mock interviews de 10 min en anglais, enregistrées et débriefées</span></label></li>
+    <li><label><input type="checkbox" data-k="i2"><span>Réponses d'1–2 phrases prêtes pour les 12 questions de la Partie 08 — y compris « how do you handle everything solo? »</span></label></li>
+    <li><label><input type="checkbox" data-k="i3"><span>20 min d'anglais par jour tenues depuis 3+ mois (débriefs écrits en anglais, contenu 100 % VO)</span></label></li>
+  </ul>
+  <p class="savenote" id="saveNote">Coche une case pour tester la sauvegarde.</p>
+</section>
+
+<!-- ================= 22 : RESSOURCES ================= -->
+<section class="part rv" id="s22">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">22</span>
+    <span class="pno">Partie 22</span>
+    <h2 class="pt">Ressources essentielles</h2>
+  </div>
+  <h3>Officiel YC (tout est gratuit)</h3>
+  <ul class="plain">
+    <li><a href="https://www.ycombinator.com/apply" rel="noopener">ycombinator.com/apply</a> — la page de candidature et les dates officielles. Source de vérité unique.</li>
+    <li><a href="https://www.ycombinator.com/deal" rel="noopener">ycombinator.com/deal</a> — le détail complet du deal 500 K$.</li>
+    <li><a href="https://www.ycombinator.com/faq" rel="noopener">ycombinator.com/faq</a> — la FAQ officielle (solo founders, visas, stades, re-candidature).</li>
+    <li><a href="https://www.ycombinator.com/documents" rel="noopener">ycombinator.com/documents</a> — les modèles SAFE officiels (Module G / Partie 20).</li>
+    <li><a href="https://www.ycombinator.com/library" rel="noopener">Startup Library</a> + la <a href="https://www.youtube.com/c/ycombinator" rel="noopener">chaîne YouTube YC</a> — des centaines d'heures de conseils des partners. Cherche les vidéos de Dalton Caldwell sur les candidatures et les analyses d'interviews.</li>
+    <li><a href="https://www.startupschool.org" rel="noopener">Startup School</a> — le cours en ligne gratuit de YC. Fais-le en entier avant de candidater.</li>
+    <li><a href="https://www.ycombinator.com/cofounder-matching" rel="noopener">Co-Founder Matching</a> — si tu explores la voie B de la Partie 13.</li>
+    <li><a href="https://www.ycombinator.com/companies" rel="noopener">Startup Directory</a> — étudie les boîtes YC de ta catégorie (email, retention, e-commerce SaaS) : leur pitch d'une ligne est un cours gratuit de clarté.</li>
+    <li><a href="https://www.ycombinator.com/rfs" rel="noopener">Requests for Startups</a> — les thèses que YC aimerait voir. Utile pour cadrer ton discours, pas pour changer d'idée.</li>
+  </ul>
+  <h3>Les essais de Paul Graham à lire absolument (paulgraham.com)</h3>
+  <ul class="plain">
+    <li><em>Do Things That Don't Scale</em> — la bible de ta phase actuelle.</li>
+    <li><em>Startup = Growth</em> — d'où viennent les repères de croissance hebdomadaire.</li>
+    <li><em>How to Get Startup Ideas</em> — pourquoi les bonnes idées viennent du terrain.</li>
+    <li><em>What We Look for in Founders</em> — les 5 qualités, détermination en tête.</li>
+    <li><em>Default Alive or Default Dead?</em> — le cadre financier à avoir en tête en permanence.</li>
+    <li><em>Mean People Fail</em> et <em>How to Do Great Work</em> — le logiciel mental.</li>
+  </ul>
+  <h3>Ta bibliothèque actuelle, mappée sur le curriculum</h3>
+  <ul class="plain">
+    <li><em>The Mom Test</em> → Modules A &amp; D (interviews et découverte client).</li>
+    <li><em>$100M Offers</em> (Hormozi) → Module B (offre et pricing).</li>
+    <li><em>Influence</em> (Cialdini) → Modules A &amp; C (vente et copywriting).</li>
+    <li>Carnegie → Module A (relation et closing) — et plus tard, le réseau à SF.</li>
+  </ul>
+</section>
+
+<!-- ================= 23 : FAQ ================= -->
+<section class="part rv" id="s23">
+  <div class="part-head">
+    <span class="ghost" aria-hidden="true">23</span>
+    <span class="pno">Partie 23</span>
+    <h2 class="pt">FAQ complète</h2>
+  </div>
+  <div class="faq">
+    <details><summary>Ça coûte combien de candidater ?</summary><div class="a"><p>0 €. Aucun frais, jamais. YC ne gagne de l'argent que si ta boîte réussit, via ses 7 %. Méfie-toi de quiconque te vend un « accès » ou une « préparation garantie ».</p></div></details>
+    <details><summary>Il faut un diplôme ? Une école ? Un âge minimum ?</summary><div class="a"><p>Non, non, et aucun minimum publié. Le formulaire ne demande ni diplôme ni pedigree. À 18 ans tu signes les contrats sans complication — c'est le seul aspect où l'âge compte.</p></div></details>
+    <details><summary>Je peux faire YC en restant en France ?</summary><div class="a"><p>Non. Le batch est en présentiel à San Francisco pendant 3 mois, kick-off de 3 jours inclus. C'est non négociable et c'est une feature : l'immersion est une grosse partie de la valeur.</p></div></details>
+    <details><summary>Faut-il déjà avoir une société immatriculée ?</summary><div class="a"><p>Non. Tu peux candidater sans aucune structure. Si tu es accepté, YC t'aide à monter la C-Corp Delaware standard (Partie 15).</p></div></details>
+    <details><summary>Une idée suffit, ou il faut de la traction ?</summary><div class="a"><p>Officiellement, ~40 % des boîtes acceptées sont au stade de l'idée et YC dit de ne pas attendre. Officieusement : ces boîtes-là ont presque toujours des fondateurs au CV exceptionnel. Pour ton profil, la traction est ta monnaie d'entrée.</p></div></details>
+    <details><summary>Candidater plusieurs fois, ça fait mauvais genre ?</summary><div class="a"><p>L'inverse. Repostuler avec une vraie progression est un signal positif reconnu, et il n'y a aucune limite de tentatives (Partie 09).</p></div></details>
+    <details><summary>Et si YC a déjà financé un concurrent ?</summary><div class="a"><p>Sans impact sur tes chances — c'est dans leur FAQ officielle. Ils financent régulièrement plusieurs boîtes sur le même espace.</p></div></details>
+    <details><summary>L'interview est en anglais ?</summary><div class="a"><p>Oui, tout est en anglais. Voir Partie 08 et le Module H — commence l'entraînement maintenant.</p></div></details>
+    <details><summary>Je garde mon agence pendant YC ?</summary><div class="a"><p>Non. YC exige que les fondateurs soient à plein temps sur la boîte financée pendant le batch — un side business est un red flag éliminatoire en interview. Dans ton plan, ce n'est pas un problème : l'agence est le MVP concierge qui se fond dans le SaaS. Au moment de candidater, tes clients agence sont devenus (ou deviennent) des clients du produit, et tu racontes UNE histoire : « j'ai fait le service à la main, j'en ai fait un logiciel ».</p></div></details>
+    <details><summary>YC prend 7 % de mon agence aussi ?</summary><div class="a"><p>Non. YC investit dans la C-Corp du produit, créée à l'acceptation. Ta micro-entreprise française reste à toi — et à terme elle n'a plus de raison d'exister séparément (voir question précédente).</p></div></details>
+    <details><summary>La vie à San Francisco coûte combien pendant le batch ?</summary><div class="a"><p>Cher — compte large : logement en colocation 1 500–2 500 $/mois, total réaliste autour de 8 000–13 000 $ pour les 3 mois en vivant simplement (détail Partie 14). C'est exactement à ça que servent les 500 K$ : YC précise que financer ton salaire, ton voyage et ton logement est un usage prévu de l'argent.</p></div></details>
+    <details><summary>C'est quoi exactement le Demo Day ?</summary><div class="a"><p>Le dernier jour du batch : chaque boîte pitche ~1 minute devant un public trié de plusieurs centaines d'investisseurs, puis les rendez-vous s'enchaînent. Mais retiens la vraie leçon de la Partie 11 : les meilleures boîtes ont déjà leur levée quasi bouclée avant le Demo Day — il officialise une dynamique, il ne la crée pas.</p></div></details>
+    <details><summary>Combien de temps pour apprendre tout le curriculum ?</summary><div class="a"><p>6 mois en parallèle de l'exécution, à raison d'1 h/jour + 20 min d'anglais. Mais aucun module ne se valide en lisant : chacun se valide par une action sur de vrais clients. Le curriculum sans prospection = zéro.</p></div></details>
+    <details><summary>YC vaut vraiment 7 % de ma boîte ?</summary><div class="a"><p>Le test proposé par YC eux-mêmes : est-ce que passer par YC améliore le destin de ta boîte d'au moins 7 % ? Pour un fondateur sans réseau ni capital, la réponse honnête est presque toujours oui — le taux de réussite des levées post-Demo Day et la puissance du réseau font le travail. Mais garde en tête la Partie 16 : YC est un accélérateur de ton objectif, pas l'objectif lui-même.</p></div></details>
+    <details><summary>Et si je n'y arrive jamais ?</summary><div class="a"><p>Alors tu auras construit un SaaS rentable avec des clients qui paient, des compétences de vente, de produit et de code, et un historique d'exécution — c'est-à-dire exactement les fondations de ton objectif à 20 ans, avec ou sans le logo YC. C'est toute la logique de ce plan : chaque étape a de la valeur même si la porte ne s'ouvre pas.</p></div></details>
+  </div>
+</section>
+
+<footer class="foot">
+  <p><strong>Dossier V3 — édition intégrale, vérifiée le 15 juillet 2026.</strong> Sources principales : ycombinator.com (pages apply, deal, faq, documents — consultées directement), CNBC, TechCrunch et analyses de données de batchs 2025–2026. Les dates estimées suivent la cadence historique de YC et doivent être confirmées sur la page officielle avant toute planification. Les repères de metrics et de levées sont les standards early-stage usuels : des ordres de grandeur, pas des promesses.</p>
+  <p class="mono">DOSSIER YC · PRÉPARÉ POUR MO$ · OBJECTIF 2–5 MD€ AVANT 38 ANS · 24 PARTIES · LA SEULE ROUTE PASSE PAR LE TERRAIN.</p>
+  <p><a class="top-link" href="#top" onclick="window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return false;">↑ Retour en haut</a></p>
+</footer>
+
+</main>
+
+<button class="btt" id="btt" aria-label="Retour en haut" title="Retour en haut">↑</button>
+
+<script>
+(function(){
+  /* ---- Countdown ---- */
+  var el=document.getElementById('countdown');
+  var f26=new Date('2026-07-28T03:00:00Z'); // 27 juil 2026, 20h PT (PDT = UTC-7)
+  function tick(){
+    var now=new Date(), d=f26-now;
+    if(d>0){
+      var days=Math.floor(d/86400000);
+      var hrs=Math.floor((d%86400000)/3600000);
+      var min=Math.floor((d%3600000)/60000);
+      el.innerHTML='DEADLINE FALL 2026 <strong>J−'+days+' · '+hrs+'h'+String(min).padStart(2,'0')+'</strong>';
+    }else{
+      el.innerHTML='FALL 2026 CLOS — PROCHAINE FENÊTRE <strong>WINTER 2027 (~NOV.)</strong>';
+    }
+  }
+  tick();
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setInterval(tick,reduce?60000:30000);
+
+  /* ---- Progress bar ---- */
+  var bar=document.getElementById('pbar'), btt=document.getElementById('btt');
+  function onScroll(){
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    bar.style.width=(max>0?(h.scrollTop/max)*100:0)+'%';
+    if(btt){ if(h.scrollTop>600){btt.classList.add('show')} else {btt.classList.remove('show')} }
+  }
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+  if(btt){btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})})}
+
+  /* ---- Reveals + TOC actif ---- */
+  var parts=[].slice.call(document.querySelectorAll('.part'));
+  var links={};
+  [].slice.call(document.querySelectorAll('.tocgrid a')).forEach(function(a){
+    links[a.getAttribute('href').slice(1)]=a;
+  });
+  if('IntersectionObserver' in window){
+    var rev=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); rev.unobserve(e.target);} });
+    },{rootMargin:'0px 0px -8% 0px'});
+    parts.forEach(function(p){rev.observe(p)});
+    var act=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var a=links[e.target.id]; if(!a) return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('is-active')});
+          a.classList.add('is-active');
+        }
+      });
+    },{rootMargin:'-30% 0px -60% 0px'});
+    parts.forEach(function(p){act.observe(p)});
+  }else{
+    parts.forEach(function(p){p.classList.add('in')});
+  }
+
+  /* ---- Checklist persistante ---- */
+  var todo=document.getElementById('ycTodo'), note=document.getElementById('saveNote');
+  if(todo){
+    var boxes=[].slice.call(todo.querySelectorAll('input[type=checkbox]'));
+    var mem={}; var KEY='yc-checklist';
+    function setNote(t){ if(note){note.textContent=t} }
+    function apply(state){
+      boxes.forEach(function(b){ b.checked=!!state[b.getAttribute('data-k')] });
+      updateCount(state);
+    }
+    function collect(){
+      var s={};
+      boxes.forEach(function(b){ if(b.checked){ s[b.getAttribute('data-k')]=1 } });
+      return s;
+    }
+    function updateCount(s){
+      var done=Object.keys(s).length;
+      if(done>0){ setNote(done+' / '+boxes.length+' cases cochées.') }
+    }
+    /* Chargement */
+    (function load(){
+      try{
+        if(window.storage && window.storage.get){
+          window.storage.get(KEY).then(function(r){
+            if(r && r.value){ try{ mem=JSON.parse(r.value)||{} }catch(e){ mem={} } }
+            apply(mem);
+            if(Object.keys(mem).length>0){ setNote(Object.keys(mem).length+' / '+boxes.length+' cases cochées — progression restaurée ✓') }
+          }).catch(function(){ apply(mem) });
+        }
+      }catch(e){}
+    })();
+    /* Sauvegarde */
+    todo.addEventListener('change',function(){
+      mem=collect();
+      updateCount(mem);
+      try{
+        if(window.storage && window.storage.set){
+          window.storage.set(KEY,JSON.stringify(mem)).then(function(r){
+            var done=Object.keys(mem).length;
+            setNote(done+' / '+boxes.length+' cases cochées — Sauvegardé ✓');
+          }).catch(function(){ /* fallback silencieux : état gardé en mémoire de session */ });
+        }
+      }catch(e){}
+    });
+  }
+})();
+</script>
+</body>
+</html>
